@@ -8,6 +8,7 @@ const questionBankRouter = require('./modules/questionBank/questionBank.router')
 const sessionRouter = require('./modules/session/session.router');
 const proctoringRouter = require('./modules/proctoring/proctoring.router');
 const { studentResultRouter, lecturerResultRouter } = require('./modules/results/results.router');
+const adminRouter = require('./modules/admin/admin.router');
 
 const app = express();
 app.use(cors());
@@ -21,5 +22,6 @@ app.use('/session', sessionRouter);
 app.use('/proctor', proctoringRouter);
 app.use('/session', studentResultRouter);
 app.use('/exams/:id/results', lecturerResultRouter);
+app.use('/admin', adminRouter);
 
 module.exports = app;
