@@ -14,4 +14,19 @@ async function login(email, password) {
   return sign({ userId: user.id, role: user.role });
 }
 
-module.exports = { login };
+async function register(email, password, role = 'STUDENT') {
+  const allowed = ['STUDENT', 'TEACHER'];
+  if (!allowed.includes(role)) return { error: 'Invalid role' };
+
+  const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+  if (existing.rows.length) return { error: 'Email already registered' };
+
+  const hash = await bcrypt.hash(password, 10);
+  const { rows } = await pool.query(
+    `INSERT INTO users (email, password, role) VALUES ($1, $2, $3) RETURNING id, email, role`,
+    [email, hash, role]
+  );
+  return { user: rows[0] };
+}
+
+module.exports = { login, register };

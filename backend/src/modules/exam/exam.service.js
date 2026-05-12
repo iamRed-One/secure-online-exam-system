@@ -54,7 +54,7 @@ async function listEnrolledExams(studentId) {
      FROM exams e
      JOIN exam_enrollments ee ON ee.exam_id = e.id
      WHERE ee.student_id = $1
-     ORDER BY e.created_at DESC`,
+     ORDER BY e.start_window DESC`,
     [studentId]
   );
   return rows;
@@ -62,7 +62,7 @@ async function listEnrolledExams(studentId) {
 
 async function listMyExams(lecturerId) {
   const { rows } = await pool.query(
-    `SELECT * FROM exams WHERE lecturer_id = $1 ORDER BY created_at DESC`,
+    `SELECT * FROM exams WHERE lecturer_id = $1 ORDER BY start_window DESC`,
     [lecturerId]
   );
   return rows;

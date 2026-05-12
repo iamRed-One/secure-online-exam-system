@@ -77,21 +77,23 @@ async function getNextQuestion(examId, studentId) {
 
   // Fetch the question (do NOT return questionId or correct_answer)
   const { rows: qRows } = await pool.query(
-    `SELECT content, type, marks FROM question_bank WHERE id = $1`,
+    `SELECT content, type, marks, options FROM question_bank WHERE id = $1`,
     [nextId]
   );
 
   if (!qRows[0]) return null;
 
   const question = qRows[0];
-  const content = decrypt(question.content);
+  const content  = decrypt(question.content);
+  const options  = question.options ? JSON.parse(decrypt(question.options)) : null;
 
   return {
     content,
-    type: question.type,
-    marks: question.marks,
-    index: answeredIds.length + 1,
-    total: questionOrder.length,
+    type:    question.type,
+    marks:   question.marks,
+    options, // array of option strings for MCQ, null for SHORT/LONG
+    index:   answeredIds.length + 1,
+    total:   questionOrder.length,
   };
 }
 
