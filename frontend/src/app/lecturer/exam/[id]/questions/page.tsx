@@ -10,6 +10,7 @@ interface Question {
   type: string;
   correctAnswer: string;
   marks: number;
+  options?: string[];
 }
 
 interface QuestionForm {
@@ -17,25 +18,26 @@ interface QuestionForm {
   type: 'MCQ' | 'SHORT' | 'LONG';
   correctAnswer: string;
   marks: number;
+  options: string[]; // 4 strings for MCQ
 }
 
-export default function QuestionsPage() {
-  const params = useParams();
-  const examId = params.id as string;
+const LABELS = ['A', 'B', 'C', 'D'];
 
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+export default function QuestionsPage() {
+  const params  = useParams();
+  const examId  = params.id as string;
+
+  const [questions, setQuestions]   = useState<Question[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState('');
   const [publishMsg, setPublishMsg] = useState('');
-  const [publishError, setPublishError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const [form, setForm] = useState<QuestionForm>({
-    content: '',
-    type: 'MCQ',
-    correctAnswer: '',
-    marks: 1,
-  });
+  const emptyForm: QuestionForm = {
+    content: '', type: 'MCQ', correctAnswer: 'A', marks: 1,
+    options: ['', '', '', ''],
+  };
+  const [form, setForm] = useState<QuestionForm>(emptyForm);
 
   async function fetchQuestions() {
     try {
@@ -48,28 +50,30 @@ export default function QuestionsPage() {
     }
   }
 
-  useEffect(() => {
-    fetchQuestions();
-  }, [examId]);
+  useEffect(() => { fetchQuestions(); }, [examId]);
 
   async function handleDelete(qid: string) {
     try {
       await apiFetch(`/exams/${examId}/questions/${qid}`, { method: 'DELETE' });
       fetchQuestions();
-    } catch (err: any) {
-      setError(err.message);
-    }
+    } catch (err: any) { setError(err.message); }
   }
 
   async function handleAddQuestion(e: React.FormEvent) {
     e.preventDefault();
+    if (form.type === 'MCQ' && form.options.some(o => !o.trim())) {
+      return setError('All 4 MCQ options must be filled in.');
+    }
     setSubmitting(true);
+    setError('');
     try {
+      const payload: any = { ...form };
+      if (form.type !== 'MCQ') delete payload.options;
       await apiFetch(`/exams/${examId}/questions`, {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
-      setForm({ content: '', type: 'MCQ', correctAnswer: '', marks: 1 });
+      setForm(emptyForm);
       fetchQuestions();
     } catch (err: any) {
       setError(err.message);
@@ -80,157 +84,137 @@ export default function QuestionsPage() {
 
   async function handlePublish() {
     setPublishMsg('');
-    setPublishError('');
     try {
       await apiFetch(`/exams/${examId}/publish`, { method: 'PATCH' });
-      setPublishMsg('Exam published successfully!');
-    } catch (err: any) {
-      setPublishError(err.message || 'Failed to publish exam.');
-    }
+      setPublishMsg('Exam published! Students can now see and enter it.');
+    } catch (err: any) { setError(err.message); }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500 text-lg">Loading questions...</p>
-      </div>
-    );
+  function setOption(i: number, val: string) {
+    const opts = [...form.options];
+    opts[i] = val;
+    setForm(f => ({ ...f, options: opts }));
   }
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-gray-500">Loading questions...</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Questions</h1>
-          <button
-            onClick={handlePublish}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-          >
+      <div className="max-w-3xl mx-auto space-y-6">
+
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">Manage Questions</h1>
+          <button onClick={handlePublish}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
             Publish Exam
           </button>
         </div>
 
-        {publishMsg && (
-          <div className="mb-4 bg-green-50 border border-green-300 rounded-lg p-4">
-            <p className="text-green-700">{publishMsg}</p>
-          </div>
-        )}
-        {publishError && (
-          <div className="mb-4 bg-red-50 border border-red-300 rounded-lg p-4">
-            <p className="text-red-700">{publishError}</p>
-          </div>
-        )}
-        {error && (
-          <div className="mb-4 bg-red-50 border border-red-300 rounded-lg p-4">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
+        {publishMsg && <div className="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-lg text-sm">{publishMsg}</div>}
+        {error      && <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>}
 
-        {/* Existing Questions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Questions ({questions.length})
-          </h2>
-          {questions.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-              No questions added yet.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {questions.map((q, idx) => (
-                <div
-                  key={q.id}
-                  className="bg-white rounded-lg shadow p-4 flex items-start justify-between"
-                >
-                  <div className="flex-1">
-                    <p className="text-gray-800 font-medium">
-                      {idx + 1}. {q.content}
-                    </p>
-                    <div className="mt-1 flex gap-4 text-sm text-gray-500">
-                      <span>Type: {q.type}</span>
-                      <span>Marks: {q.marks}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleDelete(q.id)}
-                    className="ml-4 text-red-600 hover:text-red-800 font-medium text-sm flex-shrink-0"
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
+        {/* Questions list */}
+        <div className="space-y-3">
+          <h2 className="font-semibold text-gray-700">Questions ({questions.length})</h2>
+          {questions.length === 0 && (
+            <div className="bg-white rounded-lg border p-6 text-center text-gray-400">No questions yet.</div>
           )}
+          {questions.map((q, idx) => (
+            <div key={q.id} className="bg-white rounded-lg border p-4 flex justify-between items-start">
+              <div className="space-y-1">
+                <p className="text-gray-800 font-medium">{idx + 1}. {q.content}</p>
+                <p className="text-xs text-gray-400">{q.type} · {q.marks} mark{q.marks !== 1 ? 's' : ''} · Answer: <span className="font-semibold">{q.correctAnswer}</span></p>
+                {q.options && (
+                  <div className="text-xs text-gray-500 space-y-0.5 mt-1">
+                    {q.options.map((opt, i) => (
+                      <p key={i}><span className="font-semibold">{LABELS[i]}.</span> {opt}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button onClick={() => handleDelete(q.id)}
+                className="ml-4 text-red-500 hover:text-red-700 text-sm flex-shrink-0">Delete</button>
+            </div>
+          ))}
         </div>
 
-        {/* Add Question Form */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Add Question</h2>
+        {/* Add question form */}
+        <div className="bg-white rounded-lg border p-6 space-y-4">
+          <h2 className="font-semibold text-gray-800">Add Question</h2>
           <form onSubmit={handleAddQuestion} className="space-y-4">
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-              <textarea
+              <label className="block text-sm font-medium text-gray-700 mb-1">Question text</label>
+              <textarea required rows={3}
                 value={form.content}
-                onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))}
-                required
-                rows={3}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
+                className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-              <select
-                value={form.type}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    type: e.target.value as 'MCQ' | 'SHORT' | 'LONG',
-                  }))
-                }
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="MCQ">MCQ</option>
-                <option value="SHORT">SHORT</option>
-                <option value="LONG">LONG</option>
-              </select>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select value={form.type}
+                  onChange={e => setForm(f => ({ ...f, type: e.target.value as any, correctAnswer: 'A' }))}
+                  className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                  <option value="MCQ">MCQ</option>
+                  <option value="SHORT">Short Answer</option>
+                  <option value="LONG">Long Answer</option>
+                </select>
+              </div>
+              <div className="w-24">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Marks</label>
+                <input type="number" min={1} required value={form.marks}
+                  onChange={e => setForm(f => ({ ...f, marks: +e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
             </div>
+
+            {/* MCQ options */}
+            {form.type === 'MCQ' && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Options</label>
+                {LABELS.map((label, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="w-6 text-sm font-bold text-blue-600">{label}.</span>
+                    <input type="text" required placeholder={`Option ${label}`}
+                      value={form.options[i]}
+                      onChange={e => setOption(i, e.target.value)}
+                      className="flex-1 border rounded-lg px-3 py-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correct Answer
+                Correct Answer {form.type === 'MCQ' ? '(A, B, C or D)' : ''}
               </label>
-              <input
-                type="text"
-                value={form.correctAnswer}
-                onChange={(e) => setForm((prev) => ({ ...prev, correctAnswer: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+              {form.type === 'MCQ' ? (
+                <select value={form.correctAnswer}
+                  onChange={e => setForm(f => ({ ...f, correctAnswer: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                  {LABELS.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              ) : (
+                <input type="text" required value={form.correctAnswer}
+                  onChange={e => setForm(f => ({ ...f, correctAnswer: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 text-sm text-black focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Marks</label>
-              <input
-                type="number"
-                value={form.marks}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, marks: Number(e.target.value) }))
-                }
-                min={1}
-                required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-            >
+            <button type="submit" disabled={submitting}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 rounded-lg text-sm font-medium">
               {submitting ? 'Adding...' : 'Add Question'}
             </button>
           </form>
         </div>
+
       </div>
     </div>
   );

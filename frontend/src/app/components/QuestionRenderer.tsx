@@ -5,41 +5,49 @@ interface QuestionRendererProps {
   onAnswer: (answer: string) => void;
 }
 
+const LABELS = ['A', 'B', 'C', 'D'];
+
 export default function QuestionRenderer({ question, onAnswer }: QuestionRendererProps) {
   if (!question) {
-    return (
-      <div className="text-gray-500 text-center py-8">Loading question...</div>
-    );
+    return <p className="text-gray-500 animate-pulse">Loading question...</p>;
   }
 
   if (question.done) {
     return (
-      <div className="text-green-700 text-center py-8 font-semibold text-lg">
-        All questions answered. You can now submit.
-      </div>
+      <p className="text-green-700 font-semibold text-lg">
+        All questions answered. You can now submit your exam.
+      </p>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="text-sm text-gray-500 font-medium">
+    <div className="space-y-5">
+      <p className="text-xs text-gray-400 uppercase tracking-wide">
         Question {question.index} of {question.total} &mdash; {question.marks} mark{question.marks !== 1 ? 's' : ''}
-      </div>
+      </p>
 
-      <p className="text-gray-900 text-base leading-relaxed">{question.content}</p>
+      <p className="text-lg font-medium text-gray-800 leading-relaxed select-none">
+        {question.content}
+      </p>
 
-      {question.type === 'MCQ' && (
-        <div className="space-y-2">
-          {(['A', 'B', 'C', 'D'] as const).map((option) => (
-            <label key={option} className="flex items-center gap-3 cursor-pointer">
+      {question.type === 'MCQ' && Array.isArray(question.options) && (
+        <div className="space-y-3">
+          {question.options.map((optionText: string, i: number) => (
+            <label
+              key={i}
+              className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            >
               <input
                 type="radio"
-                name="mcq-answer"
-                value={option}
-                onChange={(e) => onAnswer(e.target.value)}
-                className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                name="mcq_answer"
+                value={LABELS[i]}
+                onChange={() => onAnswer(LABELS[i])}
+                className="mt-0.5 accent-blue-600"
               />
-              <span className="text-gray-800">{option}</span>
+              <span className="text-sm text-gray-700">
+                <span className="font-semibold text-blue-700 mr-2">{LABELS[i]}.</span>
+                {optionText}
+              </span>
             </label>
           ))}
         </div>
@@ -48,18 +56,18 @@ export default function QuestionRenderer({ question, onAnswer }: QuestionRendere
       {question.type === 'SHORT' && (
         <input
           type="text"
-          onChange={(e) => onAnswer(e.target.value)}
-          placeholder="Your answer..."
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Type your answer here..."
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={e => onAnswer(e.target.value)}
         />
       )}
 
       {question.type === 'LONG' && (
         <textarea
           rows={6}
-          onChange={(e) => onAnswer(e.target.value)}
-          placeholder="Your answer..."
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          placeholder="Type your answer here..."
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          onChange={e => onAnswer(e.target.value)}
         />
       )}
     </div>
