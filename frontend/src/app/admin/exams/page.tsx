@@ -33,7 +33,7 @@ export default function AdminExamsPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await apiFetch('/admin/exams', { method: 'POST', body: JSON.stringify(form) });
+      await apiFetch('/admin/exams', { method: 'POST', body: JSON.stringify(form) }, { loading: 'Creating exam…', success: 'Exam created!', error: 'Failed to create exam' });
       setForm({ title: '', durationSeconds: 3600, startWindow: '', endWindow: '', violationThreshold: 3, gracePeriodSeconds: 60 });
       setShowForm(false);
       fetchExams();
@@ -42,14 +42,14 @@ export default function AdminExamsPage() {
 
   async function handlePublish(id: string) {
     try {
-      await apiFetch(`/admin/exams/${id}/publish`, { method: 'PATCH' });
+      await apiFetch(`/admin/exams/${id}/publish`, { method: 'PATCH' }, { loading: 'Publishing…', success: 'Exam published! All students enrolled.', error: 'Failed to publish' });
       fetchExams();
     } catch (e: any) { setError(e.message); }
   }
 
   async function handleEnrolAll(id: string) {
     try {
-      await apiFetch(`/admin/exams/${id}/enrol-all`, { method: 'POST' });
+      await apiFetch(`/admin/exams/${id}/enrol-all`, { method: 'POST' }, { loading: 'Enrolling students…', success: 'All students enrolled!', error: 'Enrolment failed' });
       alert('All students enrolled.');
     } catch (e: any) { setError(e.message); }
   }

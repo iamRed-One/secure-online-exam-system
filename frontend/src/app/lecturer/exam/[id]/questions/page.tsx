@@ -79,7 +79,7 @@ export default function QuestionsPage() {
       await apiFetch(`/exams/${examId}/questions`, {
         method: 'POST',
         body: JSON.stringify(payload),
-      });
+      }, { loading: 'Adding question…', success: 'Question added!', error: 'Failed to add question' });
       setForm(emptyForm);
       fetchQuestions();
     } catch (err: any) {
@@ -92,7 +92,7 @@ export default function QuestionsPage() {
   async function handlePublish() {
     setPublishMsg('');
     try {
-      await apiFetch(`/exams/${examId}/publish`, { method: 'PATCH' });
+      await apiFetch(`/exams/${examId}/publish`, { method: 'PATCH' }, { loading: 'Publishing exam…', success: 'Exam published!', error: 'Failed to publish' });
       setPublishMsg('Exam published! Students can now see and enter it.');
     } catch (err: any) { setError(err.message); }
   }

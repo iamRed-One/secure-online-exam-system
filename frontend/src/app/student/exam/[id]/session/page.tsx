@@ -99,7 +99,7 @@ export default function SessionPage({ params }: SessionPageProps) {
       await apiFetch('/session/submit', {
         method: 'POST',
         body: JSON.stringify({ examId }),
-      });
+      }, { loading: 'Submitting exam…', success: 'Exam submitted!', error: 'Submission failed' });
       router.push(`/student/exam/${examId}/result`);
     } catch (err: any) {
       showBanner(err.message || 'Failed to submit.');

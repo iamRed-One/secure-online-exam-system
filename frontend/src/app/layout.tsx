@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Toaster } from 'sonner';
+import LoadingBar from './components/LoadingBar';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,6 +34,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-['DM_Sans']`}
       >
+        <LoadingBar />
+        <Toaster
+          position="top-right"
+          richColors
+          toastOptions={{
+            style: { fontFamily: 'DM Sans, sans-serif' },
+          }}
+        />
         {children}
       </body>
     </html>

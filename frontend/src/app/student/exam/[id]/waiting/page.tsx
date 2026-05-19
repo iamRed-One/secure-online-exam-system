@@ -41,7 +41,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
       await apiFetch('/session/begin', {
         method: 'POST',
         body: JSON.stringify({ examId }),
-      });
+      }, { loading: 'Starting exam…', success: 'Exam started!', error: 'Failed to begin exam' });
       router.push(`/student/exam/${examId}/session`);
     } catch (err: any) {
       setError(err.message || 'Failed to begin exam.');

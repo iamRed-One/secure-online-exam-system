@@ -47,7 +47,7 @@ export default function StudentDashboard() {
   async function handleEnrolSelf(examId: string) {
     setEnrolling(examId);
     try {
-      await apiFetch(`/exams/${examId}/enrol-self`, { method: 'POST' });
+      await apiFetch(`/exams/${examId}/enrol-self`, { method: 'POST' }, { loading: 'Enrolling…', success: 'Enrolled successfully!', error: 'Enrolment failed' });
       fetchAll();
     } catch (e: any) {
       setError(e.message);

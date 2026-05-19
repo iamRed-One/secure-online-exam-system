@@ -33,7 +33,7 @@ export default function AdminUsersPage() {
       await apiFetch('/admin/users', {
         method: 'POST',
         body: JSON.stringify(form),
-      });
+      }, { loading: 'Creating user…', success: 'User created!', error: 'Failed to create user' });
       setSuccess(`User ${form.email} created.`);
       setForm({ email: '', password: '', role: 'STUDENT' });
       fetchUsers();
