@@ -2,9 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import apiFetch from '../../lib/api';
-import Sidebar from '../../components/Sidebar';
-import TopBar from '../../components/TopBar';
 import Link from 'next/link';
+import DashboardLayout from '../../layout/DashboardLayout';
 
 type Exam = {
   id: string; title: string; status: string;
@@ -89,7 +88,7 @@ export default function AdminExamsPage() {
     COMPLETED: 'bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-0.5 rounded-full',
   };
 
-  const inputCls = 'w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const inputCls = 'w-full border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white/90 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
 
   const tabs = [
     { label: 'Users', href: '/admin/users' },
@@ -97,13 +96,9 @@ export default function AdminExamsPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="ADMIN" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="Exam Management" role="ADMIN" />
-        <main className="flex-1 p-8 overflow-auto">
-        {/* Tab navigation */}
-        <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit mb-6">
+    <DashboardLayout role="ADMIN">
+      {/* Tab navigation */}
+        <div className="flex gap-1 bg-slate-100 dark:bg-gray-900 p-1 rounded-xl w-fit mb-6">
           {tabs.map(tab => {
             const active = pathname === tab.href;
             return (
@@ -112,8 +107,8 @@ export default function AdminExamsPage() {
                 href={tab.href}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   active
-                    ? 'bg-white shadow-sm text-slate-800'
-                    : 'text-slate-500 hover:text-slate-700'
+                    ? 'bg-white dark:bg-gray-800 shadow-sm text-slate-800 dark:text-white/90'
+                    : 'text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-300'
                 }`}
               >
                 {tab.label}
@@ -140,11 +135,11 @@ export default function AdminExamsPage() {
 
         {/* Create exam form (collapsible) */}
         {showForm && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-            <h2 className="text-sm font-semibold text-slate-700 mb-4">New Exam Details</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-6 mb-6">
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-4">New Exam Details</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs text-slate-500 mb-1">Title</label>
+                <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Title</label>
                 <input
                   required
                   placeholder="Exam title"
@@ -155,7 +150,7 @@ export default function AdminExamsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Duration (seconds)</label>
+                  <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Duration (seconds)</label>
                   <input
                     type="number"
                     value={form.durationSeconds}
@@ -164,7 +159,7 @@ export default function AdminExamsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Violation Threshold</label>
+                  <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Violation Threshold</label>
                   <input
                     type="number"
                     value={form.violationThreshold}
@@ -173,7 +168,7 @@ export default function AdminExamsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Start Window</label>
+                  <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Start Window</label>
                   <input
                     type="datetime-local"
                     value={form.startWindow}
@@ -182,7 +177,7 @@ export default function AdminExamsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">End Window</label>
+                  <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">End Window</label>
                   <input
                     type="datetime-local"
                     value={form.endWindow}
@@ -191,7 +186,7 @@ export default function AdminExamsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Grace Period (seconds)</label>
+                  <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Grace Period (seconds)</label>
                   <input
                     type="number"
                     value={form.gracePeriodSeconds}
@@ -213,17 +208,17 @@ export default function AdminExamsPage() {
         {/* Exams list */}
         <div className="space-y-3">
           {exams.length === 0 && (
-            <div className="bg-white rounded-2xl border border-slate-100 p-10 text-center text-slate-400 text-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 p-10 text-center text-slate-400 dark:text-gray-500 text-sm">
               No exams yet.
             </div>
           )}
           {exams.map(exam => (
-            <div key={exam.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex items-center gap-4">
+            <div key={exam.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-5 flex items-center gap-4">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-800 font-['Plus_Jakarta_Sans'] truncate">
+                <p className="font-semibold text-slate-800 dark:text-white/90 font-['Plus_Jakarta_Sans'] truncate">
                   {exam.title}
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
                   {Math.round(exam.duration_seconds / 60)} min &middot; {exam.question_count} questions
                 </p>
               </div>
@@ -235,13 +230,13 @@ export default function AdminExamsPage() {
               <div className="flex gap-2 flex-shrink-0 flex-wrap">
                 <button
                   onClick={() => router.push(`/admin/exams/${exam.id}/questions`)}
-                  className="border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  className="border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                 >
                   Questions
                 </button>
                 <button
                   onClick={() => openEnrollments(exam.id)}
-                  className="border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  className="border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                 >
                   Enrollments
                 </button>
@@ -275,18 +270,18 @@ export default function AdminExamsPage() {
         {/* Enrollment manager panel */}
         {enrollmentsExamId && (
           <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-800 font-['Plus_Jakarta_Sans']">Enrolled Students</h2>
-                <button onClick={() => setEnrollmentsExamId(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-white/90 font-['Plus_Jakarta_Sans']">Enrolled Students</h2>
+                <button onClick={() => setEnrollmentsExamId(null)} className="text-slate-400 dark:text-gray-500 hover:text-slate-600 dark:hover:text-gray-300 text-xl font-bold">×</button>
               </div>
-              {enrollments.length === 0 && <p className="text-slate-400 text-sm text-center py-4">No students enrolled.</p>}
+              {enrollments.length === 0 && <p className="text-slate-400 dark:text-gray-500 text-sm text-center py-4">No students enrolled.</p>}
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {enrollments.map(s => (
-                  <div key={s.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                  <div key={s.id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-gray-700 last:border-0">
                     <div>
-                      <p className="text-sm text-slate-800">{s.email}</p>
-                      <p className="text-xs text-slate-400">{s.session_status || 'Not started'}</p>
+                      <p className="text-sm text-slate-800 dark:text-white/90">{s.email}</p>
+                      <p className="text-xs text-slate-400 dark:text-gray-500">{s.session_status || 'Not started'}</p>
                     </div>
                     <button
                       onClick={() => handleUnenrol(enrollmentsExamId, s.id, s.email)}
@@ -300,8 +295,6 @@ export default function AdminExamsPage() {
             </div>
           </div>
         )}
-        </main>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 }

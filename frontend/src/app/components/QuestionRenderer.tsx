@@ -25,7 +25,7 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
     <div className="space-y-5">
       {/* Question label row */}
       <div className="flex items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+        <span className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-gray-500">
           Question {question.index} of {question.total}
         </span>
         <span className="ml-auto px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
@@ -34,7 +34,7 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
       </div>
 
       {/* Question text */}
-      <p className="text-base font-medium text-slate-800 leading-relaxed select-none">
+      <p className="text-base font-medium text-slate-800 dark:text-white/90 leading-relaxed select-none">
         {question.content}
       </p>
 
@@ -48,15 +48,15 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
                 key={i}
                 className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all group ${
                   selected
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    : 'border-slate-200 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10'
                 }`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                  selected ? 'bg-blue-600' : 'bg-slate-100 group-hover:bg-blue-100'
+                  selected ? 'bg-blue-600' : 'bg-slate-100 dark:bg-gray-700 group-hover:bg-blue-100'
                 }`}>
                   <span className={`font-bold text-sm transition-colors ${
-                    selected ? 'text-white' : 'text-slate-600 group-hover:text-blue-600'
+                    selected ? 'text-white' : 'text-slate-600 dark:text-gray-300 group-hover:text-blue-600'
                   }`}>{LABELS[i]}</span>
                 </div>
                 <input
@@ -67,7 +67,7 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
                   onChange={() => onAnswer(LABELS[i])}
                   className="hidden"
                 />
-                <span className="text-sm text-slate-700">{optionText}</span>
+                <span className="text-sm text-slate-700 dark:text-gray-200">{optionText}</span>
               </label>
             );
           })}
@@ -81,7 +81,7 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
           placeholder="Type your answer here..."
           value={currentAnswer}
           onChange={e => onAnswer(e.target.value)}
-          className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+          className="w-full border border-slate-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white/90 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
         />
       )}
 

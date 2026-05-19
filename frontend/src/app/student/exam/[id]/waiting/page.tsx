@@ -50,7 +50,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
   }
 
   if (checking) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
       <p className="text-slate-400 font-['DM_Sans']">Checking exam status…</p>
     </div>
   );
@@ -58,13 +58,13 @@ export default function WaitingPage({ params }: WaitingPageProps) {
   // Already completed or flagged
   if (sessionStatus === 'SUBMITTED' || sessionStatus === 'FLAGGED') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 max-w-md w-full p-10 text-center space-y-5">
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 max-w-md w-full p-10 text-center space-y-5">
           <div className="text-5xl">{sessionStatus === 'FLAGGED' ? '🚨' : '✅'}</div>
-          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">
+          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">
             {sessionStatus === 'FLAGGED' ? 'Exam Flagged' : 'Exam Already Completed'}
           </h1>
-          <p className="text-slate-500 text-sm leading-relaxed">
+          <p className="text-slate-500 dark:text-gray-400 text-sm leading-relaxed">
             {sessionStatus === 'FLAGGED'
               ? 'Your previous session was flagged for suspicious activity. You cannot retake this exam.'
               : 'You have already submitted this exam. Each exam can only be taken once.'}
@@ -78,7 +78,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
             </button>
             <button
               onClick={() => router.push('/student/dashboard')}
-              className="w-full border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 rounded-xl transition-colors"
+              className="w-full border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 font-medium py-3 rounded-xl transition-colors"
             >
               Back to Dashboard
             </button>
@@ -91,11 +91,11 @@ export default function WaitingPage({ params }: WaitingPageProps) {
   // Active session exists — resume
   if (sessionStatus === 'ACTIVE') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 max-w-md w-full p-10 text-center space-y-5">
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 max-w-md w-full p-10 text-center space-y-5">
           <div className="text-5xl">⏱</div>
-          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">Exam In Progress</h1>
-          <p className="text-slate-500 text-sm leading-relaxed">
+          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">Exam In Progress</h1>
+          <p className="text-slate-500 dark:text-gray-400 text-sm leading-relaxed">
             You have an active session for this exam. Resume where you left off.
           </p>
           <button
@@ -111,11 +111,11 @@ export default function WaitingPage({ params }: WaitingPageProps) {
 
   // No session yet — show rules and begin button
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 max-w-lg w-full p-8 space-y-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 max-w-lg w-full p-8 space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">Before You Begin</h1>
-          <p className="text-slate-500 text-sm">Read all rules carefully before starting.</p>
+          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">Before You Begin</h1>
+          <p className="text-slate-500 dark:text-gray-400 text-sm">Read all rules carefully before starting.</p>
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-3">

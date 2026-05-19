@@ -129,12 +129,12 @@ export default function SessionPage({ params }: SessionPageProps) {
         </div>
       )}
 
-      <div className="min-h-screen bg-slate-50 flex flex-col">
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex flex-col">
         {/* Header bar */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
+        <header className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">S</div>
-            <span className="font-semibold text-slate-800 text-sm hidden sm:block">Secure Exam Portal</span>
+            <span className="font-semibold text-slate-800 dark:text-white text-sm hidden sm:block">Secure Exam Portal</span>
           </div>
 
           {/* Timer — centered */}
@@ -145,7 +145,7 @@ export default function SessionPage({ params }: SessionPageProps) {
           </div>
 
           {/* Question counter */}
-          <div className="text-sm text-slate-500">
+          <div className="text-sm text-slate-500 dark:text-gray-400">
             {total > 0 && `Question ${questionIndex} of ${total}`}
           </div>
         </header>
@@ -154,16 +154,16 @@ export default function SessionPage({ params }: SessionPageProps) {
         <main className="flex-1 flex items-start justify-center p-6 pt-8">
           <div className="max-w-2xl w-full space-y-4">
             {/* Question card */}
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-gray-700 space-y-6">
               <QuestionRenderer question={question} currentAnswer={currentAnswer} onAnswer={setAnswer} />
 
               {/* Navigation row */}
               {!question?.done && (
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-gray-700">
                   <button
                     onClick={handlePrev}
                     disabled={isFirst || saving}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 disabled:opacity-40 transition"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-gray-700 disabled:opacity-40 transition"
                   >
                     ← Back
                   </button>

@@ -26,7 +26,7 @@ export default function StudentResult() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
         <p className="text-slate-400 font-['DM_Sans']">Loading result…</p>
       </div>
     );
@@ -34,7 +34,7 @@ export default function StudentResult() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
         <p className="text-red-500">{error}</p>
       </div>
     );
@@ -42,7 +42,7 @@ export default function StudentResult() {
 
   if (!result) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
         <p className="text-slate-500">No result found.</p>
       </div>
     );
@@ -54,7 +54,7 @@ export default function StudentResult() {
   const percentageDash = (percentage / 100) * circumference;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 py-12 px-4">
       <div className="max-w-2xl mx-auto">
 
         {/* Header card */}
@@ -74,7 +74,7 @@ export default function StudentResult() {
         </div>
 
         {/* Main content card */}
-        <div className="bg-white rounded-2xl shadow-sm p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8">
           <div className="flex flex-col sm:flex-row gap-8">
 
             {/* LEFT COLUMN — SVG rings */}
@@ -130,7 +130,7 @@ export default function StudentResult() {
 
               {/* Status card */}
               <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-                <p className="text-sm font-semibold text-slate-700 mb-2">Status</p>
+                <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2">Status</p>
                 {result.flagged ? (
                   <span className="inline-flex items-center bg-amber-100 text-amber-700 text-sm font-semibold px-3 py-1 rounded-full">
                     Flagged
@@ -143,24 +143,24 @@ export default function StudentResult() {
               </div>
 
               {/* Breakdown card */}
-              <div className="bg-slate-50 rounded-xl p-4 mt-3">
-                <p className="text-sm font-semibold text-slate-700 mb-3">Breakdown</p>
+              <div className="bg-slate-50 dark:bg-gray-900 rounded-xl p-4 mt-3">
+                <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-3">Breakdown</p>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Score</span>
-                    <span className="text-slate-800 font-medium">{result.score} / {result.total}</span>
+                    <span className="text-slate-500 dark:text-gray-400">Score</span>
+                    <span className="text-slate-800 dark:text-white/90 font-medium">{result.score} / {result.total}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Percentage</span>
-                    <span className="text-slate-800 font-medium">{percentage}%</span>
+                    <span className="text-slate-500 dark:text-gray-400">Percentage</span>
+                    <span className="text-slate-800 dark:text-white/90 font-medium">{percentage}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Total</span>
-                    <span className="text-slate-800 font-medium">{result.total}</span>
+                    <span className="text-slate-500 dark:text-gray-400">Total</span>
+                    <span className="text-slate-800 dark:text-white/90 font-medium">{result.total}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Status</span>
-                    <span className="text-slate-800 font-medium">
+                    <span className="text-slate-500 dark:text-gray-400">Status</span>
+                    <span className="text-slate-800 dark:text-white/90 font-medium">
                       {result.flagged ? 'Flagged' : 'Submitted'}
                     </span>
                   </div>

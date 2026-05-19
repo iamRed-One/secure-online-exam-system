@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
 import ProctorReport from '@/app/components/ProctorReport';
-import Sidebar from '@/app/components/Sidebar';
-import TopBar from '@/app/components/TopBar';
+import DashboardLayout from '@/app/layout/DashboardLayout';
 
 export default function LecturerResults() {
   const params  = useParams();
@@ -28,27 +27,19 @@ export default function LecturerResults() {
   }, [examId]);
 
   if (loading) return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="TEACHER" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="Results" role="TEACHER" />
-        <main className="flex-1 p-8 flex items-center justify-center">
-          <p className="text-slate-400 text-sm">Loading results…</p>
-        </main>
+    <DashboardLayout role="TEACHER">
+      <div className="flex items-center justify-center h-full">
+        <p className="text-slate-400 text-sm">Loading results…</p>
       </div>
-    </div>
+    </DashboardLayout>
   );
 
   if (error) return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="TEACHER" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="Results" role="TEACHER" />
-        <main className="flex-1 p-8 flex items-center justify-center">
-          <p className="text-red-500 text-sm">{error}</p>
-        </main>
+    <DashboardLayout role="TEACHER">
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500 text-sm">{error}</p>
       </div>
-    </div>
+    </DashboardLayout>
   );
 
   // Build a map from question id → question for quick lookup
@@ -56,20 +47,16 @@ export default function LecturerResults() {
   questions.forEach(q => { questionMap[q.id] = q; });
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="TEACHER" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="Results" role="TEACHER" />
-        <main className="flex-1 p-8 overflow-auto">
+    <DashboardLayout role="TEACHER">
 
           {results.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
-              <p className="text-slate-400 text-sm">No results yet.</p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-12 text-center">
+              <p className="text-slate-400 dark:text-gray-500 text-sm">No results yet.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-500 uppercase text-xs">
+                <thead className="bg-slate-50 dark:bg-gray-900 text-slate-500 dark:text-gray-400 uppercase text-xs">
                   <tr>
                     <th className="px-6 py-3 text-left font-medium tracking-wide">Student</th>
                     <th className="px-6 py-3 text-left font-medium tracking-wide">Score</th>
@@ -78,7 +65,7 @@ export default function LecturerResults() {
                     <th className="px-6 py-3 text-left font-medium tracking-wide">Answers</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
                   {results.map((result) => {
                     const pct       = result.total > 0 ? Math.round((result.score / result.total) * 100) : 0;
                     const answers   = result.session_answers || {};
@@ -87,22 +74,22 @@ export default function LecturerResults() {
 
                     return (
                       <>
-                        <tr key={result.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-4 text-slate-800 font-medium">
+                        <tr key={result.id} className="hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors">
+                          <td className="px-6 py-4 text-slate-800 dark:text-white/90 font-medium">
                             {result.student_email}
                           </td>
-                          <td className="px-6 py-4 text-slate-600">
+                          <td className="px-6 py-4 text-slate-600 dark:text-gray-400">
                             {result.score} / {result.total}
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="w-20 h-1.5 bg-slate-100 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${pct >= 70 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-400'}`}
                                   style={{ width: `${pct}%` }}
                                 />
                               </div>
-                              <span className="text-slate-600 text-xs font-medium">{pct}%</span>
+                              <span className="text-slate-600 dark:text-gray-400 text-xs font-medium">{pct}%</span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
@@ -125,7 +112,7 @@ export default function LecturerResults() {
                         {/* Expanded answer row */}
                         {isOpen && (
                           <tr key={`${result.id}-detail`}>
-                            <td colSpan={5} className="px-6 py-4 bg-slate-50 border-b border-slate-100">
+                            <td colSpan={5} className="px-6 py-4 bg-slate-50 dark:bg-gray-900 border-b border-slate-100 dark:border-gray-700">
                               <div className="space-y-3">
 
                                 {/* Question answers */}
@@ -136,11 +123,11 @@ export default function LecturerResults() {
                                     : null;
 
                                   return (
-                                    <div key={q.id} className="bg-white rounded-xl border border-slate-200 p-4">
+                                    <div key={q.id} className="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-4">
                                       <div className="flex items-start justify-between gap-4">
                                         <div className="flex-1">
-                                          <p className="text-xs text-slate-400 mb-1">Q{idx + 1} · {q.type} · {q.marks} mark{q.marks !== 1 ? 's' : ''}</p>
-                                          <p className="text-sm text-slate-700 font-medium leading-snug">{q.content}</p>
+                                          <p className="text-xs text-slate-400 dark:text-gray-500 mb-1">Q{idx + 1} · {q.type} · {q.marks} mark{q.marks !== 1 ? 's' : ''}</p>
+                                          <p className="text-sm text-slate-700 dark:text-gray-300 font-medium leading-snug">{q.content}</p>
                                         </div>
                                         {q.type === 'MCQ' && isCorrect !== null && (
                                           <span className={`text-sm font-bold flex-shrink-0 ${isCorrect ? 'text-emerald-600' : 'text-red-500'}`}>
@@ -151,7 +138,7 @@ export default function LecturerResults() {
 
                                       {q.type === 'MCQ' && (
                                         <div className="flex items-center gap-4 mt-2 text-xs">
-                                          <span className="text-slate-500">
+                                          <span className="text-slate-500 dark:text-gray-400">
                                             Student: <strong className={isCorrect ? 'text-emerald-600' : 'text-red-500'}>
                                               {studentAnswer ?? <em className="font-normal text-slate-400">No answer</em>}
                                             </strong>
@@ -163,12 +150,12 @@ export default function LecturerResults() {
                                       )}
 
                                       {(q.type === 'SHORT' || q.type === 'LONG') && (
-                                        <div className="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-200">
-                                          <p className="text-xs text-slate-400 mb-1 uppercase tracking-wide font-medium">Student&apos;s answer</p>
+                                        <div className="mt-3 bg-slate-50 dark:bg-gray-900 rounded-lg p-3 border border-slate-200 dark:border-gray-700">
+                                          <p className="text-xs text-slate-400 dark:text-gray-500 mb-1 uppercase tracking-wide font-medium">Student&apos;s answer</p>
                                           {studentAnswer ? (
-                                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{studentAnswer}</p>
+                                            <p className="text-sm text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{studentAnswer}</p>
                                           ) : (
-                                            <p className="text-sm text-slate-400 italic">No answer provided</p>
+                                            <p className="text-sm text-slate-400 dark:text-gray-500 italic">No answer provided</p>
                                           )}
                                         </div>
                                       )}
@@ -179,7 +166,7 @@ export default function LecturerResults() {
                                 {/* Proctor violations */}
                                 {result.violations && result.violations.length > 0 && (
                                   <div className="mt-2">
-                                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Violations</p>
+                                    <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-2">Violations</p>
                                     <ProctorReport violations={result.violations} />
                                   </div>
                                 )}
@@ -194,8 +181,6 @@ export default function LecturerResults() {
               </table>
             </div>
           )}
-        </main>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 }

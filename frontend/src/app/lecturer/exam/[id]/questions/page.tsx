@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
-import Sidebar from '@/app/components/Sidebar';
-import TopBar from '@/app/components/TopBar';
+import DashboardLayout from '@/app/layout/DashboardLayout';
 
 interface Question {
   id: string;
@@ -132,27 +131,19 @@ export default function QuestionsPage() {
     setForm(f => ({ ...f, options: opts }));
   }
 
-  const inputCls = 'w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const inputCls = 'w-full border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white/90 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
 
   if (loading) return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="TEACHER" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="Questions" role="TEACHER" />
-        <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
-          <p className="text-slate-400 text-sm">Loading questions...</p>
-        </main>
+    <DashboardLayout role="TEACHER">
+      <div className="flex items-center justify-center h-full">
+        <p className="text-slate-400 text-sm">Loading questions...</p>
       </div>
-    </div>
+    </DashboardLayout>
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="TEACHER" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="Questions" role="TEACHER" />
-        <main className="flex-1 p-8 overflow-auto">
-        {/* Header */}
+    <DashboardLayout role="TEACHER">
+      {/* Header */}
         <div className="flex items-center justify-end mb-6">
           <button
             onClick={handlePublish}
@@ -176,31 +167,31 @@ export default function QuestionsPage() {
         <div className="space-y-6">
           {/* Questions table - full width */}
           <div>
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+            <h2 className="text-sm font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-3">
               Questions ({questions.length})
             </h2>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-100">
+                <thead className="bg-slate-50 dark:bg-gray-900 border-b border-slate-100 dark:border-gray-700">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide w-8">#</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Question</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide w-16">Marks</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide w-16">Type</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide w-20">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide w-8">#</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide">Question</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide w-16">Marks</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide w-16">Type</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide w-20">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 dark:divide-gray-700">
                   {questions.map((q, idx) => (
-                    <tr key={q.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 text-slate-400 text-xs">{idx + 1}</td>
+                    <tr key={q.id} className="hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors">
+                      <td className="px-4 py-3 text-slate-400 dark:text-gray-500 text-xs">{idx + 1}</td>
                       <td className="px-4 py-3">
-                        <p className="text-slate-800 text-sm leading-snug line-clamp-2">{q.content}</p>
+                        <p className="text-slate-800 dark:text-white/90 text-sm leading-snug line-clamp-2">{q.content}</p>
                         {q.options && (
                           <div className="flex gap-2 mt-1 flex-wrap">
                             {q.options.map((opt: string, i: number) => (
-                              <span key={i} className="text-xs text-slate-400">
+                              <span key={i} className="text-xs text-slate-400 dark:text-gray-500">
                                 <span className="font-semibold">{['A','B','C','D'][i]}.</span> {opt}
                               </span>
                             ))}
@@ -208,7 +199,7 @@ export default function QuestionsPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className="text-slate-700 font-semibold text-sm">{q.marks}</span>
+                        <span className="text-slate-700 dark:text-gray-300 font-semibold text-sm">{q.marks}</span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -243,7 +234,7 @@ export default function QuestionsPage() {
                   ))}
                   {questions.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-10 text-center text-slate-400 text-sm">
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-400 dark:text-gray-500 text-sm">
                         No questions yet. Add your first question below.
                       </td>
                     </tr>
@@ -255,14 +246,14 @@ export default function QuestionsPage() {
 
           {/* Add / Edit form - centered */}
           <div className="max-w-2xl">
-          <div id="question-form" className={`bg-white rounded-2xl shadow-sm border p-6 ${editingId ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-100'}`}>
+          <div id="question-form" className={`bg-white dark:bg-gray-800 rounded-2xl shadow-sm border p-6 ${editingId ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-100 dark:border-gray-700'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-800 font-['Plus_Jakarta_Sans']">
+              <h2 className="text-base font-bold text-slate-800 dark:text-white/90 font-['Plus_Jakarta_Sans']">
                 {editingId ? '✏️ Edit Question' : 'Add New Question'}
               </h2>
               {editingId && (
                 <button type="button" onClick={handleCancelEdit}
-                  className="text-xs text-slate-500 hover:text-slate-700 border border-slate-200 px-3 py-1 rounded-lg">
+                  className="text-xs text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-300 border border-slate-200 dark:border-gray-700 px-3 py-1 rounded-lg">
                   Cancel Edit
                 </button>
               )}
@@ -270,7 +261,7 @@ export default function QuestionsPage() {
 
             <form onSubmit={handleAddQuestion} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
                   Question Text
                 </label>
                 <textarea
@@ -279,13 +270,13 @@ export default function QuestionsPage() {
                   value={form.content}
                   onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                   placeholder="Enter the question..."
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white/90 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
               {/* Type pill buttons */}
               <div>
-                <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
                   Type
                 </label>
                 <div className="flex gap-2">
@@ -297,7 +288,7 @@ export default function QuestionsPage() {
                       className={`px-4 py-2 rounded-xl text-xs font-medium transition-colors ${
                         form.type === t
                           ? 'bg-blue-600 text-white'
-                          : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                          : 'border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-gray-700'
                       }`}
                     >
                       {t}
@@ -309,7 +300,7 @@ export default function QuestionsPage() {
               {/* MCQ Options */}
               {form.type === 'MCQ' && (
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  <label className="block text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wide">
                     Options
                   </label>
                   {LABELS.map((label, i) => (
@@ -329,7 +320,7 @@ export default function QuestionsPage() {
               )}
 
               <div>
-                <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
                   Correct Answer {form.type === 'MCQ' ? '(A, B, C or D)' : ''}
                 </label>
                 {form.type === 'MCQ' ? (
@@ -352,7 +343,7 @@ export default function QuestionsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-medium text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
                   Marks
                 </label>
                 <input
@@ -376,8 +367,6 @@ export default function QuestionsPage() {
           </div>
           </div>
         </div>
-        </main>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 }

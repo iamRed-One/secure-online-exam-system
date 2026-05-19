@@ -36,13 +36,13 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-sm p-8">
+    <main className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg w-full max-w-sm p-8">
         {/* Header */}
         <div className="flex flex-col items-center mb-6">
           <span className="text-5xl mb-3" role="img" aria-label="graduation cap">🎓</span>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Secure Exam Portal</h1>
-          <p className="text-sm text-gray-400 mt-1">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Secure Exam Portal</h1>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Sign in to your account</p>
         </div>
 
         {/* Error */}
@@ -65,7 +65,7 @@ export default function LoginPage() {
               type="email"
               required
               placeholder="Email address"
-              className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
@@ -82,7 +82,7 @@ export default function LoginPage() {
               type="password"
               required
               placeholder="Password"
-              className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               value={password}
               onChange={e => setPassword(e.target.value)}
             />

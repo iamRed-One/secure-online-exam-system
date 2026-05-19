@@ -41,7 +41,7 @@ export default function ProctorReport({ violations }: ProctorReportProps) {
     <div className="mt-2 space-y-1">
       {violations.map((v: any, idx: number) => {
         const severity: string = v.severity ?? 'LOW';
-        const colorClass = severityStyles[severity] ?? 'text-gray-500';
+        const colorClass = severityStyles[severity] ?? 'text-gray-500 dark:text-gray-400';
         return (
           <div key={idx} className={`text-sm font-mono ${colorClass}`}>
             [{formatTimestamp(v.timestamp)}] {v.eventType} &mdash; {severity}

@@ -38,8 +38,8 @@ export default function RegisterPage() {
   const strengthWidth = ['w-0', 'w-1/3', 'w-2/3', 'w-full'][strength];
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-sm p-8">
+    <main className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg w-full max-w-sm p-8">
         {/* Header */}
         <div className="flex flex-col items-center mb-6">
           <span className="text-5xl mb-3" role="img" aria-label="graduation cap">🎓</span>

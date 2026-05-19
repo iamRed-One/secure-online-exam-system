@@ -1,10 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import apiFetch from '../../lib/api';
-import Sidebar from '../../components/Sidebar';
-import TopBar from '../../components/TopBar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import DashboardLayout from '../../layout/DashboardLayout';
 
 type User = { id: string; email: string; role: string; created_at: string };
 
@@ -58,7 +57,7 @@ export default function AdminUsersPage() {
     ADMIN:   'bg-red-100 text-red-700',
   };
 
-  const inputCls = 'w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const inputCls = 'w-full border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white/90 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
 
   const tabs = [
     { label: 'Users', href: '/admin/users' },
@@ -66,13 +65,9 @@ export default function AdminUsersPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="ADMIN" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="User Management" role="ADMIN" />
-        <main className="flex-1 p-8 overflow-auto">
-        {/* Tab navigation */}
-        <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit mb-6">
+    <DashboardLayout role="ADMIN">
+      {/* Tab navigation */}
+        <div className="flex gap-1 bg-slate-100 dark:bg-gray-900 p-1 rounded-xl w-fit mb-6">
           {tabs.map(tab => {
             const active = pathname === tab.href;
             return (
@@ -81,8 +76,8 @@ export default function AdminUsersPage() {
                 href={tab.href}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   active
-                    ? 'bg-white shadow-sm text-slate-800'
-                    : 'text-slate-500 hover:text-slate-700'
+                    ? 'bg-white dark:bg-gray-800 shadow-sm text-slate-800 dark:text-white/90'
+                    : 'text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-300'
                 }`}
               >
                 {tab.label}
@@ -95,11 +90,11 @@ export default function AdminUsersPage() {
         {success && <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700">{success}</div>}
 
         {/* Create user form */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-4">Create New User</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-6 mb-6">
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-4">Create New User</h2>
           <form onSubmit={handleCreate} className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[180px]">
-              <label className="block text-xs text-slate-500 mb-1">Email</label>
+              <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Email</label>
               <input
                 required
                 type="email"
@@ -110,7 +105,7 @@ export default function AdminUsersPage() {
               />
             </div>
             <div className="flex-1 min-w-[140px]">
-              <label className="block text-xs text-slate-500 mb-1">Password</label>
+              <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Password</label>
               <input
                 required
                 type="password"
@@ -121,7 +116,7 @@ export default function AdminUsersPage() {
               />
             </div>
             <div className="min-w-[130px]">
-              <label className="block text-xs text-slate-500 mb-1">Role</label>
+              <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Role</label>
               <select
                 className={inputCls}
                 value={form.role}
@@ -142,9 +137,9 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-500 uppercase text-xs">
+            <thead className="bg-slate-50 dark:bg-gray-900 text-slate-500 dark:text-gray-400 uppercase text-xs">
               <tr>
                 <th className="px-6 py-3 text-left font-medium tracking-wide">Email</th>
                 <th className="px-6 py-3 text-left font-medium tracking-wide">Role</th>
@@ -152,16 +147,16 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-3 text-left font-medium tracking-wide"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
               {users.map(u => (
-                <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-slate-800">{u.email}</td>
+                <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors">
+                  <td className="px-6 py-4 text-slate-800 dark:text-white/90">{u.email}</td>
                   <td className="px-6 py-4">
                     <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                       {u.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-slate-400">
+                  <td className="px-6 py-4 text-slate-400 dark:text-gray-500">
                     {new Date(u.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
@@ -176,7 +171,7 @@ export default function AdminUsersPage() {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-6 py-10 text-center text-slate-400 text-sm">
+                  <td colSpan={3} className="px-6 py-10 text-center text-slate-400 dark:text-gray-500 text-sm">
                     No users found.
                   </td>
                 </tr>
@@ -184,8 +179,6 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
-        </main>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 }

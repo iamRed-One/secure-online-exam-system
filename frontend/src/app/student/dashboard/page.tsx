@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
-import Sidebar from '@/app/components/Sidebar';
-import TopBar from '@/app/components/TopBar';
+import DashboardLayout from '@/app/layout/DashboardLayout';
 
 type Exam = {
   id: string;
@@ -60,25 +59,17 @@ export default function StudentDashboard() {
   }
 
   if (loading) return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="STUDENT" />
-      <div className="flex-1 flex flex-col">
-        <TopBar title="Dashboard" role="STUDENT" />
-        <main className="flex-1 p-8 flex items-center justify-center">
-          <p className="text-slate-400">Loading your exams…</p>
-        </main>
+    <DashboardLayout role="STUDENT">
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-400 dark:text-gray-500 text-sm">Loading your exams…</p>
       </div>
-    </div>
+    </DashboardLayout>
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar role="STUDENT" />
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar title="Dashboard" role="STUDENT" />
-        <main className="flex-1 p-8 overflow-auto">
+    <DashboardLayout role="STUDENT">
           <header className="mb-8">
-            <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">My Exams</h1>
+            <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">My Exams</h1>
           </header>
 
         {error && (
@@ -89,11 +80,11 @@ export default function StudentDashboard() {
 
         {/* My Exams */}
         <section className="mb-10">
-          <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 mb-4">
+          <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 dark:text-white/90 mb-4">
             My Exams
           </h2>
           {enrolled.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center text-slate-400 text-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-8 text-center text-slate-400 dark:text-gray-500 text-sm">
               You are not enrolled in any exams yet.
             </div>
           ) : (
@@ -101,10 +92,10 @@ export default function StudentDashboard() {
               {enrolled.map(exam => (
                 <div
                   key={exam.id}
-                  className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex flex-col gap-3"
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-5 flex flex-col gap-3"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 leading-snug">
+                    <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 dark:text-white/90 leading-snug">
                       {exam.title}
                     </h3>
                     <span className={`flex-shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[exam.status] || 'bg-slate-100 text-slate-600'}`}>
@@ -116,12 +107,12 @@ export default function StudentDashboard() {
                       <span>⏱</span> {Math.round(exam.duration_seconds / 60)} min
                     </p>
                     {exam.start_window && (
-                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                      <p className="text-xs text-slate-400 dark:text-gray-500 flex items-center gap-1">
                         <span>📅</span> {new Date(exam.start_window).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </p>
                     )}
                   </div>
-                  <div className="mt-auto pt-2 border-t border-slate-100">
+                  <div className="mt-auto pt-2 border-t border-slate-100 dark:border-gray-700">
                     {exam.status === 'SCHEDULED' && (
                       <button
                         onClick={() => router.push(`/student/exam/${exam.id}/waiting`)}
@@ -148,15 +139,15 @@ export default function StudentDashboard() {
         {/* Available Exams */}
         {available.length > 0 && (
           <section>
-            <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 mb-1">
+            <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 dark:text-white/90 mb-1">
               Available Exams
             </h2>
-            <p className="text-sm text-slate-500 mb-4">Exams you can enrol in.</p>
+            <p className="text-sm text-slate-500 dark:text-gray-400 mb-4">Exams you can enrol in.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {available.map(exam => (
                 <div
                   key={exam.id}
-                  className="bg-white rounded-2xl shadow-sm border border-dashed border-slate-200 p-5 flex flex-col gap-3"
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-dashed border-slate-200 dark:border-gray-700 p-5 flex flex-col gap-3"
                 >
                   <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 leading-snug">
                     {exam.title}
@@ -166,12 +157,12 @@ export default function StudentDashboard() {
                       <span>⏱</span> {Math.round(exam.duration_seconds / 60)} min
                     </p>
                     {exam.start_window && (
-                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                      <p className="text-xs text-slate-400 dark:text-gray-500 flex items-center gap-1">
                         <span>📅</span> {new Date(exam.start_window).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </p>
                     )}
                   </div>
-                  <div className="mt-auto pt-2 border-t border-slate-100">
+                  <div className="mt-auto pt-2 border-t border-slate-100 dark:border-gray-700">
                     <button
                       disabled={enrolling === exam.id}
                       onClick={() => handleEnrolSelf(exam.id)}
@@ -185,8 +176,6 @@ export default function StudentDashboard() {
             </div>
           </section>
         )}
-        </main>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 }
