@@ -47,6 +47,33 @@ export default function AdminExamsPage() {
     } catch (e: any) { setError(e.message); }
   }
 
+  async function handleDeleteExam(id: string, title: string) {
+    if (!confirm(`Delete exam "${title}"? This will remove all questions and sessions.`)) return;
+    try {
+      await apiFetch(`/admin/exams/${id}`, { method: 'DELETE' },
+        { loading: 'Deleting exam…', success: 'Exam deleted', error: 'Failed to delete exam' });
+      fetchExams();
+    } catch {}
+  }
+
+  const [enrollmentsExamId, setEnrollmentsExamId] = useState<string | null>(null);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
+
+  async function openEnrollments(id: string) {
+    setEnrollmentsExamId(id);
+    const data = await apiFetch(`/admin/exams/${id}/enrollments`);
+    setEnrollments(data);
+  }
+
+  async function handleUnenrol(examId: string, studentId: string, email: string) {
+    if (!confirm(`Unenrol ${email} from this exam?`)) return;
+    try {
+      await apiFetch(`/admin/exams/${examId}/enrollments/${studentId}`, { method: 'DELETE' },
+        { loading: 'Unenrolling…', success: 'Student unenrolled', error: 'Failed to unenrol' });
+      openEnrollments(examId);
+    } catch {}
+  }
+
   async function handleEnrolAll(id: string) {
     try {
       await apiFetch(`/admin/exams/${id}/enrol-all`, { method: 'POST' }, { loading: 'Enrolling students…', success: 'All students enrolled!', error: 'Enrolment failed' });
@@ -205,12 +232,18 @@ export default function AdminExamsPage() {
                 {exam.status}
               </span>
 
-              <div className="flex gap-2 flex-shrink-0">
+              <div className="flex gap-2 flex-shrink-0 flex-wrap">
                 <button
                   onClick={() => router.push(`/admin/exams/${exam.id}/questions`)}
                   className="border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                 >
                   Questions
+                </button>
+                <button
+                  onClick={() => openEnrollments(exam.id)}
+                  className="border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                >
+                  Enrollments
                 </button>
                 {exam.status === 'DRAFT' && (
                   <button
@@ -228,10 +261,45 @@ export default function AdminExamsPage() {
                     Enrol All
                   </button>
                 )}
+                <button
+                  onClick={() => handleDeleteExam(exam.id, exam.title)}
+                  className="border border-red-200 hover:bg-red-50 text-red-500 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Enrollment manager panel */}
+        {enrollmentsExamId && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-slate-800 font-['Plus_Jakarta_Sans']">Enrolled Students</h2>
+                <button onClick={() => setEnrollmentsExamId(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+              </div>
+              {enrollments.length === 0 && <p className="text-slate-400 text-sm text-center py-4">No students enrolled.</p>}
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {enrollments.map(s => (
+                  <div key={s.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                    <div>
+                      <p className="text-sm text-slate-800">{s.email}</p>
+                      <p className="text-xs text-slate-400">{s.session_status || 'Not started'}</p>
+                    </div>
+                    <button
+                      onClick={() => handleUnenrol(enrollmentsExamId, s.id, s.email)}
+                      className="text-xs text-red-500 hover:text-red-700 border border-red-200 px-2.5 py-1 rounded-lg"
+                    >
+                      Unenrol
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

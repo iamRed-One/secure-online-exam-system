@@ -44,7 +44,8 @@ export default function QuestionsPage() {
     content: '', type: 'MCQ', correctAnswer: 'A', marks: 1,
     options: ['', '', '', ''],
   };
-  const [form, setForm] = useState<QuestionForm>(emptyForm);
+  const [form, setForm]           = useState<QuestionForm>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   async function fetchQuestions() {
     try {
@@ -59,9 +60,29 @@ export default function QuestionsPage() {
 
   useEffect(() => { fetchQuestions(); }, [examId]);
 
+  function handleEditClick(q: Question) {
+    setEditingId(q.id);
+    setForm({
+      content:       q.content,
+      type:          q.type as 'MCQ' | 'SHORT' | 'LONG',
+      correctAnswer: q.correctAnswer,
+      marks:         q.marks,
+      options:       q.options ?? ['', '', '', ''],
+    });
+    // Scroll to form
+    document.getElementById('question-form')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+
   async function handleDelete(qid: string) {
+    if (!confirm('Delete this question?')) return;
     try {
-      await apiFetch(`/exams/${examId}/questions/${qid}`, { method: 'DELETE' });
+      await apiFetch(`/exams/${examId}/questions/${qid}`, { method: 'DELETE' },
+        { loading: 'Deleting…', success: 'Question deleted', error: 'Failed to delete' });
       fetchQuestions();
     } catch (err: any) { setError(err.message); }
   }
@@ -76,10 +97,18 @@ export default function QuestionsPage() {
     try {
       const payload: any = { ...form };
       if (form.type !== 'MCQ') delete payload.options;
+
+      if (editingId) {
+        await apiFetch(`/exams/${examId}/questions/${editingId}`, {
+          method: 'PUT', body: JSON.stringify(payload),
+        }, { loading: 'Saving changes…', success: 'Question updated!', error: 'Failed to update' });
+        setEditingId(null);
+      } else {
       await apiFetch(`/exams/${examId}/questions`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      }, { loading: 'Adding question…', success: 'Question added!', error: 'Failed to add question' });
+          await apiFetch(`/exams/${examId}/questions`, {
+            method: 'POST', body: JSON.stringify(payload),
+          }, { loading: 'Adding question…', success: 'Question added!', error: 'Failed to add question' });
+      }
       setForm(emptyForm);
       fetchQuestions();
     } catch (err: any) {
@@ -184,22 +213,38 @@ export default function QuestionsPage() {
                     )}
                   </div>
 
-                  <button
-                    onClick={() => handleDelete(q.id)}
-                    className="flex-shrink-0 text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-300 px-2.5 py-1 rounded-lg transition-colors"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex flex-col gap-1.5 flex-shrink-0">
+                    <button
+                      onClick={() => handleEditClick(q)}
+                      className="text-xs text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-300 px-2.5 py-1 rounded-lg transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(q.id)}
+                      className="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-300 px-2.5 py-1 rounded-lg transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Add question form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <h2 className="text-base font-bold text-slate-800 font-['Plus_Jakarta_Sans'] mb-4">
-              Add New Question
-            </h2>
+          {/* Add / Edit question form */}
+          <div id="question-form" className={`bg-white rounded-2xl shadow-sm border p-6 ${editingId ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-100'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-bold text-slate-800 font-['Plus_Jakarta_Sans']">
+                {editingId ? '✏️ Edit Question' : 'Add New Question'}
+              </h2>
+              {editingId && (
+                <button type="button" onClick={handleCancelEdit}
+                  className="text-xs text-slate-500 hover:text-slate-700 border border-slate-200 px-3 py-1 rounded-lg">
+                  Cancel Edit
+                </button>
+              )}
+            </div>
 
             <form onSubmit={handleAddQuestion} className="space-y-4">
               <div>
@@ -303,7 +348,7 @@ export default function QuestionsPage() {
                 disabled={submitting}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2.5 rounded-xl text-sm font-medium transition-colors"
               >
-                {submitting ? 'Adding...' : 'Add Question'}
+                {submitting ? 'Saving…' : editingId ? 'Save Changes' : 'Add Question'}
               </button>
             </form>
           </div>

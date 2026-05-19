@@ -53,4 +53,30 @@ async function deleteQuestion(questionId, examId, lecturerId, role = 'TEACHER') 
   return true;
 }
 
-module.exports = { addQuestion, listQuestions, deleteQuestion };
+async function updateQuestion(questionId, examId, body, role = 'TEACHER') {
+  const { content, type, correctAnswer, marks, options } = body;
+
+  const encContent = encrypt(content);
+  const encAnswer  = encrypt(correctAnswer);
+  const encOptions = (type === 'MCQ' && options)
+    ? encrypt(JSON.stringify(options))
+    : null;
+
+  // ADMIN can update any exam's question; TEACHER only their own exam
+  const examCheck = role === 'ADMIN'
+    ? await pool.query('SELECT id FROM exams WHERE id=$1', [examId])
+    : await pool.query('SELECT id FROM exams WHERE id=$1 AND lecturer_id IS NOT NULL', [examId]);
+
+  if (!examCheck.rows.length) return null;
+
+  const { rows } = await pool.query(
+    `UPDATE question_bank
+     SET content=$1, type=$2, correct_answer=$3, marks=$4, options=$5
+     WHERE id=$6 AND exam_id=$7
+     RETURNING id, type, marks`,
+    [encContent, type, encAnswer, marks, encOptions, questionId, examId]
+  );
+  return rows[0] || null;
+}
+
+module.exports = { addQuestion, listQuestions, deleteQuestion, updateQuestion };

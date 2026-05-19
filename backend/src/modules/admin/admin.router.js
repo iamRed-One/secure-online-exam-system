@@ -21,8 +21,19 @@ router.post('/users', ...guard, async (req, res) => {
   res.status(201).json(user);
 });
 
+router.delete('/users/:id', ...guard, async (req, res) => {
+  try {
+    // Prevent deleting yourself
+    if (req.params.id === req.user.userId)
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]);
+    res.json({ deleted: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Exam management ───────────────────────────────────────────────
-// List all exams (regardless of status)
 router.get('/exams', ...guard, async (req, res) => {
   const { rows } = await pool.query(
     `SELECT e.*, u.email AS lecturer_email,
@@ -34,7 +45,6 @@ router.get('/exams', ...guard, async (req, res) => {
   res.json(rows);
 });
 
-// Create a new exam (admin is the lecturer_id)
 router.post('/exams', ...guard, async (req, res) => {
   const { title, durationSeconds, startWindow, endWindow,
     violationThreshold = 3, gracePeriodSeconds = 60 } = req.body;
@@ -48,15 +58,21 @@ router.post('/exams', ...guard, async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-// Publish an exam
+router.delete('/exams/:id', ...guard, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM exams WHERE id = $1', [req.params.id]);
+    res.json({ deleted: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.patch('/exams/:id/publish', ...guard, async (req, res) => {
   const { rows } = await pool.query(
     `UPDATE exams SET status='SCHEDULED' WHERE id=$1 AND status='DRAFT' RETURNING *`,
     [req.params.id]
   );
   if (!rows[0]) return res.status(404).json({ error: 'Exam not found or not in DRAFT' });
-
-  // Auto-enrol all existing STUDENT accounts into the newly published exam
   await pool.query(
     `INSERT INTO exam_enrollments (exam_id, student_id)
      SELECT $1, id FROM users WHERE role='STUDENT'
@@ -66,7 +82,6 @@ router.patch('/exams/:id/publish', ...guard, async (req, res) => {
   res.json(rows[0]);
 });
 
-// Enrol all current students into an exam
 router.post('/exams/:id/enrol-all', ...guard, async (req, res) => {
   await pool.query(
     `INSERT INTO exam_enrollments (exam_id, student_id)
@@ -75,6 +90,35 @@ router.post('/exams/:id/enrol-all', ...guard, async (req, res) => {
     [req.params.id]
   );
   res.json({ enrolled: true });
+});
+
+// ── Enrollment management ─────────────────────────────────────────
+// List enrolled students for an exam
+router.get('/exams/:id/enrollments', ...guard, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT u.id, u.email, u.role,
+       es.status AS session_status
+     FROM exam_enrollments ee
+     JOIN users u ON u.id = ee.student_id
+     LEFT JOIN exam_sessions es ON es.exam_id = ee.exam_id AND es.student_id = ee.student_id
+     WHERE ee.exam_id = $1
+     ORDER BY u.email`,
+    [req.params.id]
+  );
+  res.json(rows);
+});
+
+// Unenrol a student from an exam
+router.delete('/exams/:id/enrollments/:studentId', ...guard, async (req, res) => {
+  try {
+    await pool.query(
+      'DELETE FROM exam_enrollments WHERE exam_id=$1 AND student_id=$2',
+      [req.params.id, req.params.studentId]
+    );
+    res.json({ unenrolled: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

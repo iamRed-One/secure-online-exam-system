@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const requireAuth = require('../../middleware/requireAuth');
 const requireRole = require('../../middleware/requireRole');
-const { addQuestion, listQuestions, deleteQuestion } = require('./questionBank.service');
+const { addQuestion, listQuestions, deleteQuestion, updateQuestion } = require('./questionBank.service');
 
 const router = Router({ mergeParams: true });
 
@@ -27,6 +27,18 @@ router.get('/', requireAuth, requireRole('TEACHER', 'ADMIN'), async (req, res) =
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to list questions' });
+  }
+});
+
+// PUT /exams/:id/questions/:qid — Update a question
+router.put('/:qid', requireAuth, requireRole('TEACHER', 'ADMIN'), async (req, res) => {
+  try {
+    const { id: examId, qid: questionId } = req.params;
+    const result = await updateQuestion(questionId, examId, req.body, req.user.role);
+    if (!result) return res.status(404).json({ error: 'Question not found' });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update question' });
   }
 });
 

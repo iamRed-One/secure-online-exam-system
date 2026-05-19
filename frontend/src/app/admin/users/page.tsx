@@ -25,6 +25,15 @@ export default function AdminUsersPage() {
 
   useEffect(() => { fetchUsers(); }, []);
 
+  async function handleDeleteUser(id: string, email: string) {
+    if (!confirm(`Delete user ${email}? This cannot be undone.`)) return;
+    try {
+      await apiFetch(`/admin/users/${id}`, { method: 'DELETE' },
+        { loading: 'Deleting user…', success: 'User deleted', error: 'Failed to delete user' });
+      fetchUsers();
+    } catch {}
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -141,6 +150,7 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-3 text-left font-medium tracking-wide">Email</th>
                 <th className="px-6 py-3 text-left font-medium tracking-wide">Role</th>
                 <th className="px-6 py-3 text-left font-medium tracking-wide">Joined</th>
+                <th className="px-6 py-3 text-left font-medium tracking-wide"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -154,6 +164,14 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="px-6 py-4 text-slate-400">
                     {new Date(u.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleDeleteUser(u.id, u.email)}
+                      className="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-300 px-2.5 py-1 rounded-lg transition-colors"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
