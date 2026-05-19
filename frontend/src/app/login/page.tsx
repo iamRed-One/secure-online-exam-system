@@ -25,8 +25,9 @@ export default function LoginPage() {
 
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (payload.role === 'STUDENT') router.push('/student/dashboard');
-      else if (payload.role === 'LECTURER') router.push('/lecturer/dashboard');
-      else router.push('/admin/users');
+      else if (payload.role === 'TEACHER') router.push('/lecturer/dashboard');
+      else if (payload.role === 'ADMIN') router.push('/admin/users');
+      else router.push('/login');
     } catch (err: any) {
       setError(err.message);
     } finally {

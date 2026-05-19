@@ -6,13 +6,16 @@ const { decrypt } = require('../../utils/crypto');
  * Idempotent: returns existing result if already graded.
  */
 async function gradeSession(examId, studentId) {
-  // Check if result already exists (idempotent)
+  // Check if result already exists — return cached only if session not re-submitted
   const existing = await pool.query(
-    'SELECT * FROM results WHERE exam_id = $1 AND student_id = $2',
+    `SELECT r.* FROM results r
+     JOIN exam_sessions es ON es.id = r.session_id
+     WHERE r.exam_id = $1 AND r.student_id = $2`,
     [examId, studentId]
   );
   if (existing.rows.length > 0) {
-    return existing.rows[0];
+    // Delete stale cached result so we always re-grade with latest logic
+    await pool.query('DELETE FROM results WHERE exam_id=$1 AND student_id=$2', [examId, studentId]);
   }
 
   // Get the submitted/flagged session
@@ -42,13 +45,20 @@ async function gradeSession(examId, studentId) {
     total += q.marks;
 
     if (q.type === 'MCQ') {
-      const correctAnswer = decrypt(q.correct_answer).trim();
-      const studentAnswer = (answers[q.id] || '').trim();
-      if (studentAnswer === correctAnswer) {
+      const correctAnswer = decrypt(q.correct_answer).trim().toLowerCase();
+      const studentAnswer = (answers[q.id] || '').trim().toLowerCase();
+      if (studentAnswer && studentAnswer === correctAnswer) {
+        score += q.marks;
+      }
+    } else if (q.type === 'SHORT') {
+      // Auto-grade SHORT answers: case-insensitive, trimmed exact match
+      const correctAnswer = decrypt(q.correct_answer).trim().toLowerCase();
+      const studentAnswer = (answers[q.id] || '').trim().toLowerCase();
+      if (studentAnswer && studentAnswer === correctAnswer) {
         score += q.marks;
       }
     }
-    // SHORT/LONG: skip scoring, manual grading later
+    // LONG: always manual grading (too subjective for auto-grade)
   }
 
   const flagged = session.status === 'FLAGGED';

@@ -74,10 +74,9 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
         </div>
       )}
 
-      {/* SHORT answer — controlled input */}
+      {/* SHORT answer — controlled input, no key so it doesn't flash on navigate */}
       {question.type === 'SHORT' && (
         <input
-          key={`short-${question.index}`}
           type="text"
           placeholder="Type your answer here..."
           value={currentAnswer}
@@ -89,7 +88,6 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
       {/* LONG answer — controlled textarea */}
       {question.type === 'LONG' && (
         <textarea
-          key={`long-${question.index}`}
           rows={6}
           placeholder="Type your detailed answer here..."
           value={currentAnswer}
