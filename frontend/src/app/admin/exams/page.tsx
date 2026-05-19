@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import apiFetch from '../../lib/api';
 import Sidebar from '../../components/Sidebar';
+import TopBar from '../../components/TopBar';
 import Link from 'next/link';
 
 type Exam = {
@@ -98,7 +99,9 @@ export default function AdminExamsPage() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="ADMIN" />
-      <main className="flex-1 p-8 overflow-auto">
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar title="Exam Management" role="ADMIN" />
+        <main className="flex-1 p-8 overflow-auto">
         {/* Tab navigation */}
         <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit mb-6">
           {tabs.map(tab => {
@@ -120,10 +123,7 @@ export default function AdminExamsPage() {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-slate-800 font-['Plus_Jakarta_Sans']">
-            Exam Management
-          </h1>
+        <div className="flex items-center justify-end mb-6">
           <button
             onClick={() => setShowForm(v => !v)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
@@ -300,7 +300,8 @@ export default function AdminExamsPage() {
             </div>
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

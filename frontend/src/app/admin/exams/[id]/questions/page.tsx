@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import apiFetch from '../../../../lib/api';
 import Sidebar from '../../../../components/Sidebar';
+import TopBar from '../../../../components/TopBar';
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
@@ -76,7 +77,9 @@ export default function AdminQuestionsPage() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="ADMIN" />
-      <main className="flex-1 p-8 overflow-auto">
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar title="Questions" role="ADMIN" />
+        <main className="flex-1 p-8 overflow-auto">
         {/* Back link */}
         <button
           onClick={() => router.push('/admin/exams')}
@@ -85,74 +88,94 @@ export default function AdminQuestionsPage() {
           &larr; Back to Exams
         </button>
 
-        <h1 className="text-xl font-bold text-slate-800 font-['Plus_Jakarta_Sans'] mb-6">
-          Manage Questions
-        </h1>
-
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Question list */}
-          <div className="space-y-3">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+        <div className="space-y-6">
+          {/* Questions table - full width */}
+          <div>
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
               Questions ({questions.length})
             </h2>
 
-            {questions.length === 0 && (
-              <div className="bg-white rounded-2xl border border-slate-100 p-8 text-center text-slate-400 text-sm">
-                No questions yet.
-              </div>
-            )}
-
-            {questions.map((q, i) => (
-              <div key={q.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 leading-snug line-clamp-3">
-                      <span className="text-slate-400 mr-1">{i + 1}.</span>
-                      {q.content}
-                    </p>
-
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${typeBadge[q.type] ?? 'bg-slate-100 text-slate-600'}`}>
-                        {q.type}
-                      </span>
-                      <span className="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                        {q.marks} mark{q.marks !== 1 ? 's' : ''}
-                      </span>
-                    </div>
-
-                    {q.options && (
-                      <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-0.5">
-                        {q.options.map((o: string, j: number) => (
-                          <p key={j} className="text-xs text-slate-500">
-                            <span className="font-semibold text-slate-700">{LABELS[j]}.</span> {o}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5 flex-shrink-0">
-                    <button onClick={() => handleEditClick(q)}
-                      className="text-xs text-blue-600 hover:text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg transition-colors">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(q.id)}
-                      className="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-300 px-2.5 py-1 rounded-lg transition-colors">
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide w-8">#</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Question</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide w-16">Marks</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide w-16">Type</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide w-20">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {questions.map((q, idx) => (
+                    <tr key={q.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3 text-slate-400 text-xs">{idx + 1}</td>
+                      <td className="px-4 py-3">
+                        <p className="text-slate-800 text-sm leading-snug line-clamp-2">{q.content}</p>
+                        {q.options && (
+                          <div className="flex gap-2 mt-1 flex-wrap">
+                            {q.options.map((opt: string, i: number) => (
+                              <span key={i} className="text-xs text-slate-400">
+                                <span className="font-semibold">{['A','B','C','D'][i]}.</span> {opt}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="text-slate-700 font-semibold text-sm">{q.marks}</span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                          q.type === 'MCQ' ? 'bg-blue-100 text-blue-700' :
+                          q.type === 'SHORT' ? 'bg-violet-100 text-violet-700' :
+                          'bg-orange-100 text-orange-700'
+                        }`}>{q.type}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleEditClick(q)}
+                            className="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50 transition-colors"
+                            title="Edit"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(q.id)}
+                            className="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors"
+                            title="Delete"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {questions.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-400 text-sm">
+                        No questions yet. Add your first question below.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Add / Edit question form */}
+          {/* Add / Edit form - centered */}
+          <div className="max-w-2xl">
           <div id="admin-question-form" className={`bg-white rounded-2xl shadow-sm border p-6 ${editingId ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-100'}`}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-slate-800 font-['Plus_Jakarta_Sans']">
@@ -269,8 +292,10 @@ export default function AdminQuestionsPage() {
               </button>
             </form>
           </div>
+          </div>
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

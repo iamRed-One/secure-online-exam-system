@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import apiFetch from '../../lib/api';
 import Sidebar from '../../components/Sidebar';
+import TopBar from '../../components/TopBar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -67,7 +68,9 @@ export default function AdminUsersPage() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="ADMIN" />
-      <main className="flex-1 p-8 overflow-auto">
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar title="User Management" role="ADMIN" />
+        <main className="flex-1 p-8 overflow-auto">
         {/* Tab navigation */}
         <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit mb-6">
           {tabs.map(tab => {
@@ -87,10 +90,6 @@ export default function AdminUsersPage() {
             );
           })}
         </div>
-
-        <h1 className="text-xl font-bold text-slate-800 font-['Plus_Jakarta_Sans'] mb-6">
-          User Management
-        </h1>
 
         {error   && <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">{error}</div>}
         {success && <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700">{success}</div>}
@@ -185,7 +184,8 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

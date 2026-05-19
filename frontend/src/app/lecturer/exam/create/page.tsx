@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
 import Sidebar from '@/app/components/Sidebar';
+import TopBar from '@/app/components/TopBar';
 
 interface FormData {
   title: string;
@@ -58,20 +59,18 @@ export default function CreateExam() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="TEACHER" />
-      <main className="flex-1 p-8 overflow-auto flex items-start justify-center">
-        <div className="w-full max-w-xl">
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar title="Create Exam" role="TEACHER" />
+        <main className="flex-1 p-8 overflow-auto flex items-start justify-center">
+          <div className="w-full max-w-xl">
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-            <h1 className="text-xl font-bold text-slate-800 font-['Plus_Jakarta_Sans'] mb-6">
-              Create New Exam
-            </h1>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+              <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className={labelCls}>Title</label>
                 <input
@@ -157,9 +156,10 @@ export default function CreateExam() {
                 {submitting ? 'Creating...' : 'Create Exam →'}
               </button>
             </form>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

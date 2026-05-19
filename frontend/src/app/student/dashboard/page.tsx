@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
 import Sidebar from '@/app/components/Sidebar';
+import TopBar from '@/app/components/TopBar';
 
 type Exam = {
   id: string;
   title: string;
   duration_seconds: number;
   status: string;
+  start_window?: string;
+  end_window?: string;
 };
 
 const STATUS_STYLE: Record<string, string> = {
@@ -59,24 +62,24 @@ export default function StudentDashboard() {
   if (loading) return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="STUDENT" />
-      <main className="flex-1 p-8 flex items-center justify-center">
-        <p className="text-slate-400 font-['DM_Sans']">Loading your exams…</p>
-      </main>
+      <div className="flex-1 flex flex-col">
+        <TopBar title="Dashboard" role="STUDENT" />
+        <main className="flex-1 p-8 flex items-center justify-center">
+          <p className="text-slate-400">Loading your exams…</p>
+        </main>
+      </div>
     </div>
   );
 
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="STUDENT" />
-
-      <main className="flex-1 p-8 overflow-auto">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">
-            Good morning 👋
-          </h1>
-          <p className="text-slate-500 mt-1 text-sm">Secure Exam Portal — Student View</p>
-        </header>
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar title="Dashboard" role="STUDENT" />
+        <main className="flex-1 p-8 overflow-auto">
+          <header className="mb-8">
+            <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">My Exams</h1>
+          </header>
 
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
@@ -108,9 +111,16 @@ export default function StudentDashboard() {
                       {exam.status}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400">
-                    Duration: {Math.round(exam.duration_seconds / 60)} min
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-xs text-slate-400 flex items-center gap-1">
+                      <span>⏱</span> {Math.round(exam.duration_seconds / 60)} min
+                    </p>
+                    {exam.start_window && (
+                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                        <span>📅</span> {new Date(exam.start_window).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
                   <div className="mt-auto pt-2 border-t border-slate-100">
                     {exam.status === 'SCHEDULED' && (
                       <button
@@ -151,9 +161,16 @@ export default function StudentDashboard() {
                   <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 leading-snug">
                     {exam.title}
                   </h3>
-                  <p className="text-xs text-slate-400">
-                    Duration: {Math.round(exam.duration_seconds / 60)} min
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-xs text-slate-400 flex items-center gap-1">
+                      <span>⏱</span> {Math.round(exam.duration_seconds / 60)} min
+                    </p>
+                    {exam.start_window && (
+                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                        <span>📅</span> {new Date(exam.start_window).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
                   <div className="mt-auto pt-2 border-t border-slate-100">
                     <button
                       disabled={enrolling === exam.id}
@@ -168,7 +185,8 @@ export default function StudentDashboard() {
             </div>
           </section>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

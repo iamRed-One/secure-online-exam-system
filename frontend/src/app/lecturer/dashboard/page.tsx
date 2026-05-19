@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
 import Sidebar from '@/app/components/Sidebar';
+import TopBar from '@/app/components/TopBar';
 
 interface Exam {
   id: string;
   title: string;
   durationSeconds: number;
   status: string;
+  start_window?: string;
 }
 
 const statusStyles: Record<string, string> = {
@@ -36,9 +38,12 @@ export default function LecturerDashboard() {
     return (
       <div className="flex min-h-screen bg-slate-50">
         <Sidebar role="TEACHER" />
-        <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
-          <p className="text-slate-400 text-sm">Loading exams...</p>
-        </main>
+        <div className="flex-1 flex flex-col min-w-0">
+          <TopBar title="My Exams" role="TEACHER" />
+          <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
+            <p className="text-slate-400 text-sm">Loading exams...</p>
+          </main>
+        </div>
       </div>
     );
   }
@@ -47,9 +52,12 @@ export default function LecturerDashboard() {
     return (
       <div className="flex min-h-screen bg-slate-50">
         <Sidebar role="TEACHER" />
-        <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
-          <p className="text-red-500 text-sm">{error}</p>
-        </main>
+        <div className="flex-1 flex flex-col min-w-0">
+          <TopBar title="My Exams" role="TEACHER" />
+          <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
+            <p className="text-red-500 text-sm">{error}</p>
+          </main>
+        </div>
       </div>
     );
   }
@@ -57,10 +65,11 @@ export default function LecturerDashboard() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="TEACHER" />
-      <main className="flex-1 p-8 overflow-auto">
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar title="My Exams" role="TEACHER" />
+        <main className="flex-1 p-8 overflow-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-xl font-bold text-slate-800 font-['Plus_Jakarta_Sans']">My Exams</h1>
+        <div className="flex items-center justify-end mb-8">
           <button
             onClick={() => router.push('/lecturer/exam/create')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
@@ -84,9 +93,16 @@ export default function LecturerDashboard() {
                   <h2 className="font-semibold text-slate-800 font-['Plus_Jakarta_Sans'] leading-snug">
                     {exam.title}
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {Math.round(exam.durationSeconds / 60)} minutes
-                  </p>
+                  <div className="space-y-1 mt-1">
+                    <p className="text-xs text-slate-400 flex items-center gap-1">
+                      <span>⏱</span> {Math.round(exam.durationSeconds / 60)} min
+                    </p>
+                    {exam.start_window && (
+                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                        <span>📅</span> {new Date(exam.start_window).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -113,7 +129,8 @@ export default function LecturerDashboard() {
             ))}
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

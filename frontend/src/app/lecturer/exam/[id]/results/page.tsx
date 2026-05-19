@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
 import ProctorReport from '@/app/components/ProctorReport';
 import Sidebar from '@/app/components/Sidebar';
+import TopBar from '@/app/components/TopBar';
 
 interface ExamResult {
   id: string;
@@ -34,9 +35,12 @@ export default function LecturerResults() {
     return (
       <div className="flex min-h-screen bg-slate-50">
         <Sidebar role="TEACHER" />
-        <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
-          <p className="text-slate-400 text-sm">Loading results...</p>
-        </main>
+        <div className="flex-1 flex flex-col min-w-0">
+          <TopBar title="Results" role="TEACHER" />
+          <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
+            <p className="text-slate-400 text-sm">Loading results...</p>
+          </main>
+        </div>
       </div>
     );
   }
@@ -45,9 +49,12 @@ export default function LecturerResults() {
     return (
       <div className="flex min-h-screen bg-slate-50">
         <Sidebar role="TEACHER" />
-        <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
-          <p className="text-red-500 text-sm">{error}</p>
-        </main>
+        <div className="flex-1 flex flex-col min-w-0">
+          <TopBar title="Results" role="TEACHER" />
+          <main className="flex-1 p-8 overflow-auto flex items-center justify-center">
+            <p className="text-red-500 text-sm">{error}</p>
+          </main>
+        </div>
       </div>
     );
   }
@@ -55,10 +62,9 @@ export default function LecturerResults() {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar role="TEACHER" />
-      <main className="flex-1 p-8 overflow-auto">
-        <h1 className="text-xl font-bold text-slate-800 font-['Plus_Jakarta_Sans'] mb-6">
-          Exam Results
-        </h1>
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar title="Results" role="TEACHER" />
+        <main className="flex-1 p-8 overflow-auto">
 
         {results.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
@@ -128,7 +134,8 @@ export default function LecturerResults() {
             </table>
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

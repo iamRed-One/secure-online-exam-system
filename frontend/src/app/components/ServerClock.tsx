@@ -44,7 +44,7 @@ export default function ServerClock({ examId }: ServerClockProps) {
   const display = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
   return (
-    <span className={`font-mono text-xl font-bold ${seconds < 300 ? 'text-red-600' : 'text-gray-800'}`}>
+    <span className="font-mono font-bold text-red-500">
       {display}
     </span>
   );

@@ -112,7 +112,7 @@ export default function SessionPage({ params }: SessionPageProps) {
 
   return (
     <ExamLockdown examId={examId} onViolation={handleViolation} onFlagged={handleFlagged}>
-      <ViolationBanner message={bannerMsg} visible={bannerVisible} />
+      <ViolationBanner message={bannerMsg} visible={bannerVisible} onClose={() => setBanner(false)} />
 
       {/* Flagged overlay — shown when session is terminated */}
       {flagged && (
@@ -129,27 +129,24 @@ export default function SessionPage({ params }: SessionPageProps) {
         </div>
       )}
 
-      <div className="min-h-screen bg-slate-900 flex flex-col">
+      <div className="min-h-screen bg-slate-50 flex flex-col">
         {/* Header bar */}
-        <header className={`sticky top-0 z-50 bg-slate-800 border-b border-slate-700 px-6 py-3 flex items-center justify-between ${bannerVisible ? 'mt-12' : ''}`}>
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-xs font-bold text-white">S</div>
-            <span className="font-['Plus_Jakarta_Sans'] font-semibold text-white text-sm hidden sm:block">Secure Exam Portal</span>
+        <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">S</div>
+            <span className="font-semibold text-slate-800 text-sm hidden sm:block">Secure Exam Portal</span>
           </div>
 
           {/* Timer — centered */}
-          <div className="absolute left-1/2 -translate-x-1/2">
-            <div className="bg-blue-600 text-white font-mono text-2xl font-bold px-6 py-2 rounded-xl shadow-lg">
+          <div className="flex flex-col items-center">
+            <span className="text-2xl font-mono font-bold text-red-500 tracking-widest">
               <ServerClock examId={examId} />
-            </div>
+            </span>
           </div>
 
           {/* Question counter */}
-          <div className="text-slate-400 text-sm font-medium">
-            {total > 0 && (
-              <span>Question <span className="text-white font-semibold">{questionIndex}</span> of <span className="text-white font-semibold">{total}</span></span>
-            )}
+          <div className="text-sm text-slate-500">
+            {total > 0 && `Question ${questionIndex} of ${total}`}
           </div>
         </header>
 
@@ -157,28 +154,28 @@ export default function SessionPage({ params }: SessionPageProps) {
         <main className="flex-1 flex items-start justify-center p-6 pt-8">
           <div className="max-w-2xl w-full space-y-4">
             {/* Question card */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl space-y-6">
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 space-y-6">
               <QuestionRenderer question={question} onAnswer={setAnswer} />
 
               {/* Navigation row */}
               {!question?.done && (
-                <div className="flex items-center gap-3 pt-2">
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                   <button
                     onClick={handlePrev}
                     disabled={isFirst || saving}
-                    className="px-5 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold hover:border-slate-300 hover:bg-slate-50 disabled:opacity-40 transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 disabled:opacity-40 transition"
                   >
-                    ← Previous
+                    ← Back
                   </button>
 
-                  {/* Progress dots */}
+                  {/* Progress dots centered */}
                   {total > 0 && (
-                    <div className="flex-1 flex justify-center gap-1.5">
+                    <div className="flex gap-1.5">
                       {Array.from({ length: total }).map((_, i) => (
                         <button
                           key={i}
                           onClick={async () => { await saveCurrentAnswer(); setIndex(i + 1); fetchQuestion(i + 1); }}
-                          className={`w-2 h-2 rounded-full transition-all ${
+                          className={`w-2 h-2 rounded-full transition ${
                             i + 1 === questionIndex ? 'bg-blue-600 scale-125' : 'bg-slate-200 hover:bg-slate-300'
                           }`}
                         />
@@ -186,23 +183,13 @@ export default function SessionPage({ params }: SessionPageProps) {
                     </div>
                   )}
 
-                  {!isLast ? (
-                    <button
-                      onClick={handleNext}
-                      disabled={saving}
-                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
-                    >
-                      {saving ? 'Saving…' : 'Save & Next →'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleNext}
-                      disabled={saving}
-                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
-                    >
-                      {saving ? 'Saving…' : 'Save →'}
-                    </button>
-                  )}
+                  <button
+                    onClick={handleNext}
+                    disabled={saving}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
+                  >
+                    {saving ? 'Saving…' : 'Next →'}
+                  </button>
                 </div>
               )}
             </div>
@@ -211,7 +198,7 @@ export default function SessionPage({ params }: SessionPageProps) {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-['Plus_Jakarta_Sans'] font-semibold py-3 rounded-xl transition-colors shadow-lg"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-['Plus_Jakarta_Sans'] font-semibold py-3 rounded-xl transition-colors shadow-sm"
             >
               {submitting ? 'Submitting…' : 'Submit Exam'}
             </button>
