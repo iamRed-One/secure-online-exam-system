@@ -47,11 +47,11 @@ async function logEvent(examId, studentId, type) {
         `UPDATE exam_sessions SET status='FLAGGED' WHERE id=$1 AND status='ACTIVE'`,
         [sessionId]
       );
+      return { flagged: true };
     }
   }
 
-  // 5. Return true on success
-  return true;
+  return { flagged: false };
 }
 
 module.exports = { logEvent };

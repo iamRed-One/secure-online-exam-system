@@ -17,7 +17,7 @@ export default function ServerClock({ examId }: ServerClockProps) {
     async function fetchTime() {
       try {
         const data = await apiFetch(`/session/time?examId=${examId}`);
-        setSeconds(data.seconds ?? 0);
+        setSeconds(data.remainingSeconds ?? 0);
       } catch {
         // silently retain current countdown on sync error
       }

@@ -3,14 +3,19 @@ const { decrypt } = require('../../utils/crypto');
 const { shuffleQuestions } = require('../../utils/randomize');
 
 async function beginSession(examId, studentId) {
-  // Check if there's already an active session
   const { rows: existing } = await pool.query(
     `SELECT id, status FROM exam_sessions WHERE exam_id = $1 AND student_id = $2`,
     [examId, studentId]
   );
 
-  if (existing[0] && existing[0].status === 'ACTIVE') {
-    return { error: 'Session already active' };
+  if (existing[0]) {
+    const { status } = existing[0];
+    if (status === 'SUBMITTED' || status === 'FLAGGED') {
+      return { error: 'already_completed' };
+    }
+    if (status === 'ACTIVE') {
+      return { error: 'already_active' };
+    }
   }
 
   // Fetch all question IDs for this exam
@@ -53,7 +58,7 @@ async function beginSession(examId, studentId) {
   return { sessionId, status: 'ACTIVE', startTime: now };
 }
 
-async function getNextQuestion(examId, studentId) {
+async function getNextQuestion(examId, studentId, index = null) {
   const { rows } = await pool.query(
     `SELECT question_order, answers
      FROM exam_sessions
@@ -63,22 +68,30 @@ async function getNextQuestion(examId, studentId) {
 
   if (!rows[0]) return null;
 
-  const questionOrder = rows[0].question_order; // JSONB — already parsed by pg
+  const questionOrder = rows[0].question_order;
   const answers = rows[0].answers || {};
-
   const answeredIds = Object.keys(answers);
 
-  // Find first unanswered question
-  const nextId = questionOrder.find((id) => !answeredIds.includes(id));
+  let targetId;
+  let targetIndex; // 0-based
 
-  if (!nextId) {
-    return { done: true };
+  if (index !== null) {
+    // Navigate to a specific question by 1-based index
+    const idx = parseInt(index) - 1;
+    if (idx < 0 || idx >= questionOrder.length) return { done: true };
+    targetId    = questionOrder[idx];
+    targetIndex = idx;
+  } else {
+    // Default: first unanswered
+    targetIndex = questionOrder.findIndex((id) => !answeredIds.includes(id));
+    if (targetIndex === -1) return { done: true };
+    targetId = questionOrder[targetIndex];
   }
 
   // Fetch the question (do NOT return questionId or correct_answer)
   const { rows: qRows } = await pool.query(
     `SELECT content, type, marks, options FROM question_bank WHERE id = $1`,
-    [nextId]
+    [targetId]
   );
 
   if (!qRows[0]) return null;
@@ -86,14 +99,17 @@ async function getNextQuestion(examId, studentId) {
   const question = qRows[0];
   const content  = decrypt(question.content);
   const options  = question.options ? JSON.parse(decrypt(question.options)) : null;
+  const savedAnswer = answers[targetId] || null;
 
   return {
     content,
-    type:    question.type,
-    marks:   question.marks,
-    options, // array of option strings for MCQ, null for SHORT/LONG
-    index:   answeredIds.length + 1,
-    total:   questionOrder.length,
+    type:        question.type,
+    marks:       question.marks,
+    options,
+    savedAnswer, // pre-fill if student already answered this question
+    index:       targetIndex + 1,   // 1-based for display
+    total:       questionOrder.length,
+    answered:    !!answers[targetId],
   };
 }
 

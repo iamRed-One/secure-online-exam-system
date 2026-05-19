@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import apiFetch from '../../lib/api';
+import Navbar from '../../components/Navbar';
 
 type User = { id: string; email: string; role: string; created_at: string };
 
@@ -45,8 +46,15 @@ export default function AdminUsersPage() {
   };
 
   return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar title="Admin Dashboard" role="Admin" />
     <main className="p-8 max-w-4xl mx-auto space-y-8">
       <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
+
+      <div className="flex gap-4 text-sm mb-2">
+        <span className="font-semibold text-gray-700">Users</span>
+        <a href="/admin/exams" className="text-blue-600 hover:underline">Exams & Questions →</a>
+      </div>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {success && <p className="text-green-600 text-sm">{success}</p>}
@@ -111,5 +119,6 @@ export default function AdminUsersPage() {
         </table>
       </section>
     </main>
+    </div>
   );
 }

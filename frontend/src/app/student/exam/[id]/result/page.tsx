@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
 
 interface Result {
@@ -12,6 +12,7 @@ interface Result {
 
 export default function StudentResult() {
   const params = useParams();
+  const router = useRouter();
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -72,6 +73,13 @@ export default function StudentResult() {
             <p className="text-green-800 font-medium">Result confirmed.</p>
           </div>
         )}
+
+        <button
+          onClick={() => router.push('/student/dashboard')}
+          className="mt-6 w-full border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-3 rounded-xl transition"
+        >
+          ← Back to Home
+        </button>
       </div>
     </div>
   );

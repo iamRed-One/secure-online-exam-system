@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiFetch from '../../../../lib/api';
 
@@ -19,31 +19,103 @@ const EXAM_RULES = [
 ];
 
 export default function WaitingPage({ params }: WaitingPageProps) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router  = useRouter();
+  const examId  = params.id;
+
+  const [sessionStatus, setSessionStatus] = useState<string | null>(null);
+  const [checking, setChecking]           = useState(true);
+  const [starting, setStarting]           = useState(false);
+  const [error, setError]                 = useState('');
+
+  useEffect(() => {
+    apiFetch(`/session/status?examId=${examId}`)
+      .then(data => setSessionStatus(data.status))
+      .catch(() => setSessionStatus(null))
+      .finally(() => setChecking(false));
+  }, [examId]);
 
   async function handleBeginExam() {
-    setLoading(true);
-    setError(null);
+    setStarting(true);
+    setError('');
     try {
       await apiFetch('/session/begin', {
         method: 'POST',
-        body: JSON.stringify({ examId: params.id }),
+        body: JSON.stringify({ examId }),
       });
-      router.push(`/student/exam/${params.id}/session`);
+      router.push(`/student/exam/${examId}/session`);
     } catch (err: any) {
-      setError(err.message || 'Failed to begin exam. Please try again.');
-      setLoading(false);
+      setError(err.message || 'Failed to begin exam.');
+      setStarting(false);
     }
   }
 
+  if (checking) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <p className="text-gray-400">Checking exam status…</p>
+    </div>
+  );
+
+  // Already completed or flagged — show modal-style block
+  if (sessionStatus === 'SUBMITTED' || sessionStatus === 'FLAGGED') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-8 text-center space-y-5">
+          <div className="text-5xl">{sessionStatus === 'FLAGGED' ? '🚨' : '✅'}</div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {sessionStatus === 'FLAGGED' ? 'Exam Flagged' : 'Exam Already Completed'}
+          </h1>
+          <p className="text-gray-500 text-sm">
+            {sessionStatus === 'FLAGGED'
+              ? 'Your previous session was flagged for suspicious activity. You cannot retake this exam.'
+              : 'You have already submitted this exam. Each exam can only be taken once.'}
+          </p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => router.push(`/student/exam/${examId}/result`)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl"
+            >
+              View My Result
+            </button>
+            <button
+              onClick={() => router.push('/student/dashboard')}
+              className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl"
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Active session exists — resume instead of restart
+  if (sessionStatus === 'ACTIVE') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-8 text-center space-y-5">
+          <div className="text-5xl">⏱</div>
+          <h1 className="text-2xl font-bold text-gray-900">Exam In Progress</h1>
+          <p className="text-gray-500 text-sm">
+            You have an active session for this exam. Resume where you left off.
+          </p>
+          <button
+            onClick={() => router.push(`/student/exam/${examId}/session`)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl"
+          >
+            Resume Exam
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // No session yet — show rules and begin button
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-lg max-w-lg w-full p-8 space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-gray-900">Exam Waiting Room</h1>
-          <p className="text-gray-500 text-sm">Please read all rules carefully before beginning.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Before You Begin</h1>
+          <p className="text-gray-500 text-sm">Read all rules carefully before starting.</p>
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-3">
@@ -68,10 +140,10 @@ export default function WaitingPage({ params }: WaitingPageProps) {
 
         <button
           onClick={handleBeginExam}
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3 rounded-xl transition-colors duration-200"
+          disabled={starting}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition"
         >
-          {loading ? 'Starting exam...' : 'Begin Exam'}
+          {starting ? 'Starting…' : 'Begin Exam'}
         </button>
       </div>
     </div>

@@ -23,7 +23,7 @@ async function createExam(body, lecturerId) {
 async function publishExam(examId, lecturerId) {
   const { rows } = await pool.query(
     `UPDATE exams
-     SET status = 'PUBLISHED'
+     SET status = 'SCHEDULED'
      WHERE id = $1 AND lecturer_id = $2 AND status = 'DRAFT'
      RETURNING *`,
     [examId, lecturerId]

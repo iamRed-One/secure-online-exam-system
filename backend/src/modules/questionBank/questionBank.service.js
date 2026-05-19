@@ -37,11 +37,13 @@ async function listQuestions(examId) {
   }));
 }
 
-async function deleteQuestion(questionId, examId, lecturerId) {
-  const { rows: examRows } = await pool.query(
-    `SELECT id FROM exams WHERE id = $1 AND lecturer_id = $2 AND status = 'DRAFT'`,
-    [examId, lecturerId]
-  );
+async function deleteQuestion(questionId, examId, lecturerId, role = 'TEACHER') {
+  // ADMIN can delete from any DRAFT exam; TEACHER only from their own
+  const ownershipClause = role === 'ADMIN'
+    ? `SELECT id FROM exams WHERE id = $1 AND status = 'DRAFT'`
+    : `SELECT id FROM exams WHERE id = $1 AND lecturer_id = $2 AND status = 'DRAFT'`;
+  const params = role === 'ADMIN' ? [examId] : [examId, lecturerId];
+  const { rows: examRows } = await pool.query(ownershipClause, params);
   if (!examRows[0]) return null;
 
   await pool.query(

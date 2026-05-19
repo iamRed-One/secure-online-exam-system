@@ -6,51 +6,42 @@ import apiFetch from '../lib/api';
 interface ExamLockdownProps {
   examId: string;
   onViolation: (type: string) => void;
+  onFlagged: () => void;
   children: React.ReactNode;
 }
 
-export default function ExamLockdown({ examId, onViolation, children }: ExamLockdownProps) {
+export default function ExamLockdown({ examId, onViolation, onFlagged, children }: ExamLockdownProps) {
   const devtoolsFlagged = useRef(false);
 
   useEffect(() => {
-    // 1. Request fullscreen
-    document.documentElement.requestFullscreen?.().catch(() => {
-      // ignore if user denies
-    });
+    document.documentElement.requestFullscreen?.().catch(() => {});
 
     async function reportViolation(type: string) {
       onViolation(type);
       try {
-        await apiFetch('/proctor/event', {
+        const res = await apiFetch('/proctor/event', {
           method: 'POST',
           body: JSON.stringify({ examId, type }),
         });
+        if (res.flagged) onFlagged();
       } catch {
-        // best-effort — don't crash on network error
+        // best-effort
       }
     }
 
-    // 2. Tab switch
     function handleVisibilityChange() {
-      if (document.hidden) {
-        reportViolation('TAB_SWITCH');
-      }
+      if (document.hidden) reportViolation('TAB_SWITCH');
     }
 
-    // 3. Fullscreen exit
     function handleFullscreenChange() {
-      if (!document.fullscreenElement) {
-        reportViolation('FULLSCREEN_EXIT');
-      }
+      if (!document.fullscreenElement) reportViolation('FULLSCREEN_EXIT');
     }
 
-    // 4. Clipboard events
     function handleClipboard(e: ClipboardEvent) {
       e.preventDefault();
       reportViolation('CLIPBOARD');
     }
 
-    // 5. Context menu
     function handleContextMenu(e: MouseEvent) {
       e.preventDefault();
       reportViolation('RIGHT_CLICK');
@@ -58,14 +49,13 @@ export default function ExamLockdown({ examId, onViolation, children }: ExamLock
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('copy', handleClipboard);
-    document.addEventListener('paste', handleClipboard);
-    document.addEventListener('cut', handleClipboard);
+    document.addEventListener('copy',        handleClipboard);
+    document.addEventListener('paste',       handleClipboard);
+    document.addEventListener('cut',         handleClipboard);
     document.addEventListener('contextmenu', handleContextMenu);
 
-    // 6. DevTools detection
     const devtoolsInterval = setInterval(() => {
-      const widthDiff = window.outerWidth - window.innerWidth;
+      const widthDiff  = window.outerWidth  - window.innerWidth;
       const heightDiff = window.outerHeight - window.innerHeight;
       if ((widthDiff > 160 || heightDiff > 160) && !devtoolsFlagged.current) {
         devtoolsFlagged.current = true;
@@ -75,17 +65,16 @@ export default function ExamLockdown({ examId, onViolation, children }: ExamLock
       }
     }, 2000);
 
-    // 7. Cleanup
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('copy', handleClipboard);
-      document.removeEventListener('paste', handleClipboard);
-      document.removeEventListener('cut', handleClipboard);
+      document.removeEventListener('copy',        handleClipboard);
+      document.removeEventListener('paste',       handleClipboard);
+      document.removeEventListener('cut',         handleClipboard);
       document.removeEventListener('contextmenu', handleContextMenu);
       clearInterval(devtoolsInterval);
     };
-  }, [examId, onViolation]);
+  }, [examId, onViolation, onFlagged]);
 
   return <>{children}</>;
 }

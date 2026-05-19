@@ -14,6 +14,21 @@ const router = Router();
 // All session routes require authentication and STUDENT role
 router.use(requireAuth, requireRole('STUDENT'));
 
+// GET /session/status — check current session status for an exam
+router.get('/status', async (req, res) => {
+  try {
+    const { examId } = req.query;
+    if (!examId) return res.status(400).json({ error: 'examId required' });
+    const { rows } = await require('../../db/client').query(
+      `SELECT status FROM exam_sessions WHERE exam_id=$1 AND student_id=$2`,
+      [examId, req.user.userId]
+    );
+    res.json({ status: rows[0]?.status || null });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /session/begin — start exam session
 router.post('/begin', async (req, res) => {
   try {
@@ -32,10 +47,10 @@ router.post('/begin', async (req, res) => {
 // GET /session/question — get current (next unanswered) question
 router.get('/question', async (req, res) => {
   try {
-    const { examId } = req.query;
+    const { examId, index } = req.query;
     if (!examId) return res.status(400).json({ error: 'examId query param is required' });
 
-    const result = await getNextQuestion(examId, req.user.userId);
+    const result = await getNextQuestion(examId, req.user.userId, index || null);
     if (result === null) return res.status(404).json({ error: 'No active session found' });
 
     res.json(result);

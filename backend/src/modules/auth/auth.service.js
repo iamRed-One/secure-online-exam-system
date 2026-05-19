@@ -26,7 +26,22 @@ async function register(email, password, role = 'STUDENT') {
     `INSERT INTO users (email, password, role) VALUES ($1, $2, $3) RETURNING id, email, role`,
     [email, hash, role]
   );
-  return { user: rows[0] };
+  const user = rows[0];
+
+  // Auto-enrol new students into all currently PUBLISHED exams
+  if (user.role === 'STUDENT') {
+    const { rows: exams } = await pool.query(
+      `SELECT id FROM exams WHERE status = 'SCHEDULED'`
+    );
+    for (const exam of exams) {
+      await pool.query(
+        `INSERT INTO exam_enrollments (exam_id, student_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        [exam.id, user.id]
+      );
+    }
+  }
+
+  return { user };
 }
 
 module.exports = { login, register };

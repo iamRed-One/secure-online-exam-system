@@ -9,8 +9,11 @@ export default function ViolationBanner({ message, visible }: ViolationBannerPro
   if (!visible) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-red-600 text-white text-center py-3 px-4 animate-pulse font-semibold text-sm">
-      {message}
+    <div
+      style={{ zIndex: 99999 }}
+      className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-4 px-4 font-bold text-sm shadow-lg animate-pulse"
+    >
+      ⚠ {message}
     </div>
   );
 }

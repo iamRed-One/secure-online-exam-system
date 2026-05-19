@@ -6,10 +6,10 @@ const { addQuestion, listQuestions, deleteQuestion } = require('./questionBank.s
 const router = Router({ mergeParams: true });
 
 // POST /exams/:id/questions — Add question to bank
-router.post('/', requireAuth, requireRole('TEACHER'), async (req, res) => {
+router.post('/', requireAuth, requireRole('TEACHER', 'ADMIN'), async (req, res) => {
   try {
     const examId = req.params.id;
-    const createdBy = req.user.id;
+    const createdBy = req.user.userId;
     const question = await addQuestion(req.body, examId, createdBy);
     res.status(201).json(question);
   } catch (err) {
@@ -19,7 +19,7 @@ router.post('/', requireAuth, requireRole('TEACHER'), async (req, res) => {
 });
 
 // GET /exams/:id/questions — List all questions (decrypted)
-router.get('/', requireAuth, requireRole('TEACHER'), async (req, res) => {
+router.get('/', requireAuth, requireRole('TEACHER', 'ADMIN'), async (req, res) => {
   try {
     const examId = req.params.id;
     const questions = await listQuestions(examId);
@@ -31,11 +31,11 @@ router.get('/', requireAuth, requireRole('TEACHER'), async (req, res) => {
 });
 
 // DELETE /exams/:id/questions/:qid — Delete question (only if exam is DRAFT)
-router.delete('/:qid', requireAuth, requireRole('TEACHER'), async (req, res) => {
+router.delete('/:qid', requireAuth, requireRole('TEACHER', 'ADMIN'), async (req, res) => {
   try {
     const { id: examId, qid: questionId } = req.params;
-    const lecturerId = req.user.id;
-    const result = await deleteQuestion(questionId, examId, lecturerId);
+    const lecturerId = req.user.userId;
+    const result = await deleteQuestion(questionId, examId, lecturerId, req.user.role);
     if (result === null) {
       return res.status(404).json({ error: 'Question not found or exam is not in DRAFT status' });
     }
