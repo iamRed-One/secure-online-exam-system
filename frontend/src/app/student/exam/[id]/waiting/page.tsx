@@ -50,35 +50,35 @@ export default function WaitingPage({ params }: WaitingPageProps) {
   }
 
   if (checking) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <p className="text-gray-400">Checking exam status…</p>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <p className="text-slate-400 font-['DM_Sans']">Checking exam status…</p>
     </div>
   );
 
-  // Already completed or flagged — show modal-style block
+  // Already completed or flagged
   if (sessionStatus === 'SUBMITTED' || sessionStatus === 'FLAGGED') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-8 text-center space-y-5">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 max-w-md w-full p-10 text-center space-y-5">
           <div className="text-5xl">{sessionStatus === 'FLAGGED' ? '🚨' : '✅'}</div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">
             {sessionStatus === 'FLAGGED' ? 'Exam Flagged' : 'Exam Already Completed'}
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-slate-500 text-sm leading-relaxed">
             {sessionStatus === 'FLAGGED'
               ? 'Your previous session was flagged for suspicious activity. You cannot retake this exam.'
               : 'You have already submitted this exam. Each exam can only be taken once.'}
           </p>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 pt-2">
             <button
               onClick={() => router.push(`/student/exam/${examId}/result`)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors"
             >
               View My Result
             </button>
             <button
               onClick={() => router.push('/student/dashboard')}
-              className="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl"
+              className="w-full border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 rounded-xl transition-colors"
             >
               Back to Dashboard
             </button>
@@ -88,19 +88,19 @@ export default function WaitingPage({ params }: WaitingPageProps) {
     );
   }
 
-  // Active session exists — resume instead of restart
+  // Active session exists — resume
   if (sessionStatus === 'ACTIVE') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl shadow-lg max-w-md w-full p-8 text-center space-y-5">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 max-w-md w-full p-10 text-center space-y-5">
           <div className="text-5xl">⏱</div>
-          <h1 className="text-2xl font-bold text-gray-900">Exam In Progress</h1>
-          <p className="text-gray-500 text-sm">
+          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">Exam In Progress</h1>
+          <p className="text-slate-500 text-sm leading-relaxed">
             You have an active session for this exam. Resume where you left off.
           </p>
           <button
             onClick={() => router.push(`/student/exam/${examId}/session`)}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors"
           >
             Resume Exam
           </button>
@@ -111,18 +111,18 @@ export default function WaitingPage({ params }: WaitingPageProps) {
 
   // No session yet — show rules and begin button
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="bg-white rounded-2xl shadow-lg max-w-lg w-full p-8 space-y-6">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 max-w-lg w-full p-8 space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-gray-900">Before You Begin</h1>
-          <p className="text-gray-500 text-sm">Read all rules carefully before starting.</p>
+          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">Before You Begin</h1>
+          <p className="text-slate-500 text-sm">Read all rules carefully before starting.</p>
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-3">
-          <h2 className="font-semibold text-amber-800 text-sm uppercase tracking-wide">Exam Rules</h2>
-          <ul className="space-y-2">
+          <h2 className="font-semibold text-amber-800 text-xs uppercase tracking-widest">Exam Rules</h2>
+          <ul className="space-y-2.5">
             {EXAM_RULES.map((rule, i) => (
-              <li key={i} className="flex items-start gap-2 text-amber-900 text-sm">
+              <li key={i} className="flex items-start gap-3 text-amber-900 text-sm leading-relaxed">
                 <span className="mt-0.5 flex-shrink-0 w-5 h-5 bg-amber-200 text-amber-800 rounded-full flex items-center justify-center text-xs font-bold">
                   {i + 1}
                 </span>
@@ -133,7 +133,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-red-700 text-sm">
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
             {error}
           </div>
         )}
@@ -141,7 +141,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
         <button
           onClick={handleBeginExam}
           disabled={starting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition"
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
         >
           {starting ? 'Starting…' : 'Begin Exam'}
         </button>

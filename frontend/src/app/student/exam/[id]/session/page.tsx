@@ -119,87 +119,102 @@ export default function SessionPage({ params }: SessionPageProps) {
         <div style={{ zIndex: 999999 }} className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
           <div className="bg-white rounded-2xl p-10 max-w-md text-center space-y-4 shadow-2xl">
             <div className="text-5xl">🚨</div>
-            <h2 className="text-2xl font-bold text-red-700">Session Flagged</h2>
-            <p className="text-gray-700">
+            <h2 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-red-700">Session Flagged</h2>
+            <p className="text-slate-700 text-sm leading-relaxed">
               Too many suspicious activities were detected during your exam.
               Your session has been flagged and submitted for review.
             </p>
-            <p className="text-sm text-gray-400">Redirecting to results in 5 seconds…</p>
+            <p className="text-sm text-slate-400">Redirecting to results in 5 seconds…</p>
           </div>
         </div>
       )}
 
-      <div className="min-h-screen bg-gray-100 flex flex-col">
-        {/* Header */}
-        <header className={`bg-white border-b px-6 py-4 flex items-center justify-between shadow-sm ${bannerVisible ? 'mt-12' : ''}`}>
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">Exam in Progress</h1>
+      <div className="min-h-screen bg-slate-900 flex flex-col">
+        {/* Header bar */}
+        <header className={`sticky top-0 z-50 bg-slate-800 border-b border-slate-700 px-6 py-3 flex items-center justify-between ${bannerVisible ? 'mt-12' : ''}`}>
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-xs font-bold text-white">S</div>
+            <span className="font-['Plus_Jakarta_Sans'] font-semibold text-white text-sm hidden sm:block">Secure Exam Portal</span>
+          </div>
+
+          {/* Timer — centered */}
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <div className="bg-blue-600 text-white font-mono text-2xl font-bold px-6 py-2 rounded-xl shadow-lg">
+              <ServerClock examId={examId} />
+            </div>
+          </div>
+
+          {/* Question counter */}
+          <div className="text-slate-400 text-sm font-medium">
             {total > 0 && (
-              <p className="text-xs text-gray-400">Question {questionIndex} of {total}</p>
+              <span>Question <span className="text-white font-semibold">{questionIndex}</span> of <span className="text-white font-semibold">{total}</span></span>
             )}
           </div>
-          <ServerClock examId={examId} />
         </header>
 
         {/* Question area */}
-        <main className="flex-1 flex items-start justify-center p-6">
-          <div className="bg-white rounded-2xl shadow-md max-w-2xl w-full p-8 space-y-6">
-            <QuestionRenderer question={question} onAnswer={setAnswer} />
+        <main className="flex-1 flex items-start justify-center p-6 pt-8">
+          <div className="max-w-2xl w-full space-y-4">
+            {/* Question card */}
+            <div className="bg-white rounded-2xl p-8 shadow-xl space-y-6">
+              <QuestionRenderer question={question} onAnswer={setAnswer} />
 
-            {/* Navigation buttons */}
-            {!question?.done && (
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={handlePrev}
-                  disabled={isFirst || saving}
-                  className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-40 transition"
-                >
-                  ← Previous
-                </button>
-
-                {!isLast ? (
+              {/* Navigation row */}
+              {!question?.done && (
+                <div className="flex items-center gap-3 pt-2">
                   <button
-                    onClick={handleNext}
-                    disabled={saving}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition"
+                    onClick={handlePrev}
+                    disabled={isFirst || saving}
+                    className="px-5 py-2.5 rounded-xl border-2 border-slate-200 text-slate-700 font-semibold hover:border-slate-300 hover:bg-slate-50 disabled:opacity-40 transition-all"
                   >
-                    {saving ? 'Saving…' : 'Save & Next →'}
+                    ← Previous
                   </button>
-                ) : (
-                  <button
-                    onClick={handleNext}
-                    disabled={saving}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition"
-                  >
-                    {saving ? 'Saving…' : 'Save →'}
-                  </button>
-                )}
-              </div>
-            )}
 
-            {/* Submit button */}
+                  {/* Progress dots */}
+                  {total > 0 && (
+                    <div className="flex-1 flex justify-center gap-1.5">
+                      {Array.from({ length: total }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={async () => { await saveCurrentAnswer(); setIndex(i + 1); fetchQuestion(i + 1); }}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            i + 1 === questionIndex ? 'bg-blue-600 scale-125' : 'bg-slate-200 hover:bg-slate-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {!isLast ? (
+                    <button
+                      onClick={handleNext}
+                      disabled={saving}
+                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
+                    >
+                      {saving ? 'Saving…' : 'Save & Next →'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleNext}
+                      disabled={saving}
+                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
+                    >
+                      {saving ? 'Saving…' : 'Save →'}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Submit button — below the card */}
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl transition"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-['Plus_Jakarta_Sans'] font-semibold py-3 rounded-xl transition-colors shadow-lg"
             >
               {submitting ? 'Submitting…' : 'Submit Exam'}
             </button>
-
-            {/* Progress dots */}
-            {total > 0 && (
-              <div className="flex justify-center gap-1.5 pt-2">
-                {Array.from({ length: total }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={async () => { await saveCurrentAnswer(); setIndex(i + 1); fetchQuestion(i + 1); }}
-                    className={`w-2.5 h-2.5 rounded-full transition ${
-                      i + 1 === questionIndex ? 'bg-blue-600 scale-125' : 'bg-gray-300 hover:bg-gray-400'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         </main>
       </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
-import Navbar from '@/app/components/Navbar';
+import Sidebar from '@/app/components/Sidebar';
 
 type Exam = {
   id: string;
@@ -13,10 +13,10 @@ type Exam = {
 };
 
 const STATUS_STYLE: Record<string, string> = {
-  DRAFT:     'bg-yellow-100 text-yellow-800',
-  SCHEDULED: 'bg-green-100 text-green-800',
-  ONGOING:   'bg-blue-100 text-blue-800',
-  COMPLETED: 'bg-gray-100 text-gray-600',
+  DRAFT:     'bg-amber-100 text-amber-700',
+  SCHEDULED: 'bg-emerald-100 text-emerald-700',
+  ONGOING:   'bg-blue-100 text-blue-700',
+  COMPLETED: 'bg-slate-100 text-slate-600',
 };
 
 export default function StudentDashboard() {
@@ -57,85 +57,118 @@ export default function StudentDashboard() {
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <p className="text-gray-500">Loading...</p>
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar role="STUDENT" />
+      <main className="flex-1 p-8 flex items-center justify-center">
+        <p className="text-slate-400 font-['DM_Sans']">Loading your exams…</p>
+      </main>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar title="Student Dashboard" role="Student" />
-      <div className="max-w-3xl mx-auto py-8 px-4 space-y-8">
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar role="STUDENT" />
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+      <main className="flex-1 p-8 overflow-auto">
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900">
+            Good morning 👋
+          </h1>
+          <p className="text-slate-500 mt-1 text-sm">Secure Exam Portal — Student View</p>
+        </header>
 
-        {/* My enrolled exams */}
-        <section className="space-y-3">
-          <h2 className="text-xl font-bold text-gray-800">My Exams</h2>
-          {enrolled.length === 0 && (
-            <div className="bg-white border rounded-xl p-6 text-center text-gray-400">
-              You are not enrolled in any exams yet.
-            </div>
-          )}
-          {enrolled.map(exam => (
-            <div key={exam.id} className="bg-white border rounded-xl p-5 flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-800">{exam.title}</p>
-                <p className="text-sm text-gray-400">
-                  Duration: {Math.round(exam.duration_seconds / 60)} min
-                </p>
-                <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLE[exam.status] || 'bg-gray-100 text-gray-600'}`}>
-                  {exam.status}
-                </span>
-              </div>
-              <div className="ml-4 flex-shrink-0">
-                {exam.status === 'SCHEDULED' && (
-                  <button
-                    onClick={() => router.push(`/student/exam/${exam.id}/waiting`)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                  >
-                    Enter Exam
-                  </button>
-                )}
-                {(exam.status === 'COMPLETED' || exam.status === 'ONGOING') && (
-                  <button
-                    onClick={() => router.push(`/student/exam/${exam.id}/result`)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                  >
-                    View Result
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </section>
-
-        {/* Available exams to join */}
-        {available.length > 0 && (
-          <section className="space-y-3">
-            <h2 className="text-xl font-bold text-gray-800">Available Exams</h2>
-            <p className="text-sm text-gray-500">Exams you can enrol in.</p>
-            {available.map(exam => (
-              <div key={exam.id} className="bg-white border border-dashed border-gray-300 rounded-xl p-5 flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-gray-800">{exam.title}</p>
-                  <p className="text-sm text-gray-400">
-                    Duration: {Math.round(exam.duration_seconds / 60)} min
-                  </p>
-                </div>
-                <button
-                  disabled={enrolling === exam.id}
-                  onClick={() => handleEnrolSelf(exam.id)}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                >
-                  {enrolling === exam.id ? 'Enrolling…' : 'Enrol'}
-                </button>
-              </div>
-            ))}
-          </section>
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
+            {error}
+          </div>
         )}
 
-      </div>
+        {/* My Exams */}
+        <section className="mb-10">
+          <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 mb-4">
+            My Exams
+          </h2>
+          {enrolled.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center text-slate-400 text-sm">
+              You are not enrolled in any exams yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {enrolled.map(exam => (
+                <div
+                  key={exam.id}
+                  className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex flex-col gap-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 leading-snug">
+                      {exam.title}
+                    </h3>
+                    <span className={`flex-shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[exam.status] || 'bg-slate-100 text-slate-600'}`}>
+                      {exam.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Duration: {Math.round(exam.duration_seconds / 60)} min
+                  </p>
+                  <div className="mt-auto pt-2 border-t border-slate-100">
+                    {exam.status === 'SCHEDULED' && (
+                      <button
+                        onClick={() => router.push(`/student/exam/${exam.id}/waiting`)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
+                      >
+                        Enter Exam
+                      </button>
+                    )}
+                    {(exam.status === 'COMPLETED' || exam.status === 'ONGOING') && (
+                      <button
+                        onClick={() => router.push(`/student/exam/${exam.id}/result`)}
+                        className="w-full bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
+                      >
+                        View Result
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Available Exams */}
+        {available.length > 0 && (
+          <section>
+            <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 mb-1">
+              Available Exams
+            </h2>
+            <p className="text-sm text-slate-500 mb-4">Exams you can enrol in.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {available.map(exam => (
+                <div
+                  key={exam.id}
+                  className="bg-white rounded-2xl shadow-sm border border-dashed border-slate-200 p-5 flex flex-col gap-3"
+                >
+                  <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 leading-snug">
+                    {exam.title}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Duration: {Math.round(exam.duration_seconds / 60)} min
+                  </p>
+                  <div className="mt-auto pt-2 border-t border-slate-100">
+                    <button
+                      disabled={enrolling === exam.id}
+                      onClick={() => handleEnrolSelf(exam.id)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold py-2 rounded-xl transition-colors"
+                    >
+                      {enrolling === exam.id ? 'Enrolling…' : 'Enrol'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 }

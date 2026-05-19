@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
+import Sidebar from '@/app/components/Sidebar';
 
 interface FormData {
   title: string;
@@ -51,108 +52,114 @@ export default function CreateExam() {
     }
   }
 
+  const inputCls = 'w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const labelCls = 'block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wide';
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-lg mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Create New Exam</h1>
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar role="TEACHER" />
+      <main className="flex-1 p-8 overflow-auto flex items-start justify-center">
+        <div className="w-full max-w-xl">
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
 
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-300 rounded-lg p-4">
-            <p className="text-red-700">{error}</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+            <h1 className="text-xl font-bold text-slate-800 font-['Plus_Jakarta_Sans'] mb-6">
+              Create New Exam
+            </h1>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className={labelCls}>Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g. Midterm Examination"
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Duration (seconds)</label>
+                <input
+                  type="number"
+                  name="durationSeconds"
+                  value={form.durationSeconds}
+                  onChange={handleChange}
+                  min={60}
+                  required
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Start Window</label>
+                <input
+                  type="datetime-local"
+                  name="startWindow"
+                  value={form.startWindow}
+                  onChange={handleChange}
+                  required
+                  className={inputCls}
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>End Window</label>
+                <input
+                  type="datetime-local"
+                  name="endWindow"
+                  value={form.endWindow}
+                  onChange={handleChange}
+                  required
+                  className={inputCls}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Violation Threshold</label>
+                  <input
+                    type="number"
+                    name="violationThreshold"
+                    value={form.violationThreshold}
+                    onChange={handleChange}
+                    min={1}
+                    required
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Grace Period (seconds)</label>
+                  <input
+                    type="number"
+                    name="gracePeriodSeconds"
+                    value={form.gracePeriodSeconds}
+                    onChange={handleChange}
+                    min={0}
+                    required
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2.5 px-4 rounded-xl text-sm font-medium transition-colors mt-2"
+              >
+                {submitting ? 'Creating...' : 'Create Exam →'}
+              </button>
+            </form>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-            <input
-              type="text"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Duration (seconds)
-            </label>
-            <input
-              type="number"
-              name="durationSeconds"
-              value={form.durationSeconds}
-              onChange={handleChange}
-              min={60}
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Start Window</label>
-            <input
-              type="datetime-local"
-              name="startWindow"
-              value={form.startWindow}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">End Window</label>
-            <input
-              type="datetime-local"
-              name="endWindow"
-              value={form.endWindow}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Violation Threshold
-            </label>
-            <input
-              type="number"
-              name="violationThreshold"
-              value={form.violationThreshold}
-              onChange={handleChange}
-              min={1}
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Grace Period (seconds)
-            </label>
-            <input
-              type="number"
-              name="gracePeriodSeconds"
-              value={form.gracePeriodSeconds}
-              onChange={handleChange}
-              min={0}
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-          >
-            {submitting ? 'Creating...' : 'Create Exam'}
-          </button>
-        </form>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
