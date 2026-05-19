@@ -155,7 +155,7 @@ export default function SessionPage({ params }: SessionPageProps) {
           <div className="max-w-2xl w-full space-y-4">
             {/* Question card */}
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 space-y-6">
-              <QuestionRenderer question={question} onAnswer={setAnswer} />
+              <QuestionRenderer question={question} currentAnswer={currentAnswer} onAnswer={setAnswer} />
 
               {/* Navigation row */}
               {!question?.done && (

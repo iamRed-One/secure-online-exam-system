@@ -86,6 +86,7 @@ async function getLecturerResults(examId, lecturerId) {
 
   const resultsRes = await pool.query(
     `SELECT r.*, u.email AS student_email, es.status AS session_status,
+       es.answers AS session_answers,
        (SELECT json_agg(pl ORDER BY pl.timestamp)
         FROM proctor_logs pl WHERE pl.session_id = es.id) AS violations
      FROM results r
