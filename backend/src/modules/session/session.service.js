@@ -1,6 +1,6 @@
 const pool = require('../../db/client');
 const { decrypt } = require('../../utils/crypto');
-const { shuffleQuestions } = require('../../utils/randomize');
+const { shuffleQuestions, selectSubset } = require('../../utils/randomize');
 
 async function beginSession(examId, studentId) {
   const { rows: existing } = await pool.query(
@@ -18,14 +18,16 @@ async function beginSession(examId, studentId) {
     }
   }
 
-  // Fetch all question IDs for this exam
-  const { rows: questionRows } = await pool.query(
-    `SELECT id FROM question_bank WHERE exam_id = $1`,
-    [examId]
-  );
+  // Fetch all question IDs and exam's questions_per_student setting
+  const [questionRes, examRes] = await Promise.all([
+    pool.query(`SELECT id FROM question_bank WHERE exam_id = $1`, [examId]),
+    pool.query(`SELECT questions_per_student FROM exams WHERE id = $1`, [examId]),
+  ]);
 
-  const questionIds = questionRows.map((r) => r.id);
-  const orderedIds = shuffleQuestions(questionIds, studentId, examId);
+  const questionIds = questionRes.rows.map((r) => r.id);
+  const qps = examRes.rows[0]?.questions_per_student ?? null;
+  const subsetIds = selectSubset(questionIds, qps, studentId, examId);
+  const orderedIds = shuffleQuestions(subsetIds, studentId, examId);
 
   const now = new Date();
 

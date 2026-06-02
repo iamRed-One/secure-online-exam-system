@@ -15,15 +15,23 @@ const typeBadge: Record<string, string> = {
 export default function AdminQuestionsPage() {
   const { id: examId } = useParams() as { id: string };
   const router = useRouter();
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [questions, setQuestions]     = useState<any[]>([]);
+  const [questionsPerStudent, setQps] = useState<number | null>(null);
+  const [error, setError]             = useState('');
+  const [submitting, setSubmitting]   = useState(false);
   const emptyForm = { content: '', type: 'MCQ', correctAnswer: 'A', marks: 1, options: ['','','',''] };
   const [form, setForm]           = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   async function fetchQuestions() {
-    try { setQuestions(await apiFetch(`/exams/${examId}/questions`)); }
+    try {
+      const [data, exam] = await Promise.all([
+        apiFetch(`/exams/${examId}/questions`),
+        apiFetch(`/admin/exams/${examId}`),
+      ]);
+      setQuestions(data);
+      setQps(exam.questions_per_student ?? null);
+    }
     catch (e: any) { setError(e.message); }
   }
 
@@ -89,11 +97,17 @@ export default function AdminQuestionsPage() {
           </div>
         )}
 
+        {questionsPerStudent !== null && questions.length < questionsPerStudent && (
+          <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
+            ⚠ This exam requires <strong>{questionsPerStudent}</strong> questions per student but only has <strong>{questions.length}</strong>. Add <strong>{questionsPerStudent - questions.length}</strong> more before publishing.
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Questions table - full width */}
           <div>
             <h2 className="text-sm font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-              Questions ({questions.length})
+              Questions ({questions.length}{questionsPerStudent !== null ? ` / ${questionsPerStudent} required` : ''})
             </h2>
 
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">

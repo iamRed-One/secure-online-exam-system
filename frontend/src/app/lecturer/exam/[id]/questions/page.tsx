@@ -34,11 +34,12 @@ export default function QuestionsPage() {
   const params  = useParams();
   const examId  = params.id as string;
 
-  const [questions, setQuestions]   = useState<Question[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState('');
-  const [publishMsg, setPublishMsg] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [questions, setQuestions]         = useState<Question[]>([]);
+  const [questionsPerStudent, setQps]     = useState<number | null>(null);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState('');
+  const [publishMsg, setPublishMsg]       = useState('');
+  const [submitting, setSubmitting]       = useState(false);
 
   const emptyForm: QuestionForm = {
     content: '', type: 'MCQ', correctAnswer: 'A', marks: 1,
@@ -49,8 +50,12 @@ export default function QuestionsPage() {
 
   async function fetchQuestions() {
     try {
-      const data = await apiFetch(`/exams/${examId}/questions`);
+      const [data, exam] = await Promise.all([
+        apiFetch(`/exams/${examId}/questions`),
+        apiFetch(`/exams/${examId}`),
+      ]);
       setQuestions(data);
+      setQps(exam.questions_per_student ?? null);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -164,11 +169,17 @@ export default function QuestionsPage() {
           </div>
         )}
 
+        {questionsPerStudent !== null && questions.length < questionsPerStudent && (
+          <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
+            ⚠ This exam requires <strong>{questionsPerStudent}</strong> questions per student but only has <strong>{questions.length}</strong>. Add <strong>{questionsPerStudent - questions.length}</strong> more before publishing.
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Questions table - full width */}
           <div>
             <h2 className="text-sm font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-              Questions ({questions.length})
+              Questions ({questions.length}{questionsPerStudent !== null ? ` / ${questionsPerStudent} required` : ''})
             </h2>
 
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">

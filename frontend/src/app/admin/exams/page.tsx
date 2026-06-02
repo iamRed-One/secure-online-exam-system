@@ -21,6 +21,7 @@ export default function AdminExamsPage() {
     title: '', durationSeconds: 3600,
     startWindow: '', endWindow: '',
     violationThreshold: 3, gracePeriodSeconds: 60,
+    questionsPerStudent: '' as number | '',
   });
 
   async function fetchExams() {
@@ -33,8 +34,9 @@ export default function AdminExamsPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await apiFetch('/admin/exams', { method: 'POST', body: JSON.stringify(form) }, { loading: 'Creating exam…', success: 'Exam created!', error: 'Failed to create exam' });
-      setForm({ title: '', durationSeconds: 3600, startWindow: '', endWindow: '', violationThreshold: 3, gracePeriodSeconds: 60 });
+      const payload = { ...form, questionsPerStudent: form.questionsPerStudent === '' ? null : form.questionsPerStudent };
+      await apiFetch('/admin/exams', { method: 'POST', body: JSON.stringify(payload) }, { loading: 'Creating exam…', success: 'Exam created!', error: 'Failed to create exam' });
+      setForm({ title: '', durationSeconds: 3600, startWindow: '', endWindow: '', violationThreshold: 3, gracePeriodSeconds: 60, questionsPerStudent: '' });
       setShowForm(false);
       fetchExams();
     } catch (e: any) { setError(e.message); }
@@ -197,6 +199,17 @@ export default function AdminExamsPage() {
                     className={inputCls}
                   />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Questions Per Student <span className="text-slate-400">(optional)</span></label>
+                <input
+                  type="number"
+                  min={1}
+                  value={form.questionsPerStudent}
+                  placeholder="Leave blank to give all questions"
+                  onChange={e => setForm(f => ({ ...f, questionsPerStudent: e.target.value === '' ? '' : +e.target.value }))}
+                  className={inputCls}
+                />
               </div>
               <button
                 type="submit"

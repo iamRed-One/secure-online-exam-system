@@ -1,0 +1,1 @@
+ALTER TABLE exams ADD COLUMN IF NOT EXISTS questions_per_student INTEGER DEFAULT NULL;

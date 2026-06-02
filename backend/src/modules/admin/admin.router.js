@@ -47,15 +47,21 @@ router.get('/exams', ...guard, async (req, res) => {
 
 router.post('/exams', ...guard, async (req, res) => {
   const { title, durationSeconds, startWindow, endWindow,
-    violationThreshold = 3, gracePeriodSeconds = 60 } = req.body;
+    violationThreshold = 3, gracePeriodSeconds = 60, questionsPerStudent = null } = req.body;
   const { rows } = await pool.query(
     `INSERT INTO exams (title, lecturer_id, duration_seconds, start_window, end_window,
-       violation_threshold, grace_period_seconds)
-     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+       violation_threshold, grace_period_seconds, questions_per_student)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
     [title, req.user.userId, durationSeconds, startWindow, endWindow,
-     violationThreshold, gracePeriodSeconds]
+     violationThreshold, gracePeriodSeconds, questionsPerStudent || null]
   );
   res.status(201).json(rows[0]);
+});
+
+router.get('/exams/:id', ...guard, async (req, res) => {
+  const { rows } = await pool.query(`SELECT * FROM exams WHERE id=$1`, [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ error: 'Exam not found' });
+  res.json(rows[0]);
 });
 
 router.delete('/exams/:id', ...guard, async (req, res) => {
@@ -68,18 +74,41 @@ router.delete('/exams/:id', ...guard, async (req, res) => {
 });
 
 router.patch('/exams/:id/publish', ...guard, async (req, res) => {
-  const { rows } = await pool.query(
-    `UPDATE exams SET status='SCHEDULED' WHERE id=$1 AND status='DRAFT' RETURNING *`,
-    [req.params.id]
-  );
-  if (!rows[0]) return res.status(404).json({ error: 'Exam not found or not in DRAFT' });
-  await pool.query(
-    `INSERT INTO exam_enrollments (exam_id, student_id)
-     SELECT $1, id FROM users WHERE role='STUDENT'
-     ON CONFLICT DO NOTHING`,
-    [req.params.id]
-  );
-  res.json(rows[0]);
+  try {
+    const { rows: examRows } = await pool.query(
+      `SELECT questions_per_student FROM exams WHERE id=$1 AND status='DRAFT'`,
+      [req.params.id]
+    );
+    if (!examRows[0]) return res.status(404).json({ error: 'Exam not found or not in DRAFT' });
+
+    const qps = examRows[0].questions_per_student;
+    if (qps) {
+      const { rows: countRows } = await pool.query(
+        `SELECT COUNT(*) FROM question_bank WHERE exam_id=$1`,
+        [req.params.id]
+      );
+      const count = parseInt(countRows[0].count, 10);
+      if (count < qps) {
+        return res.status(400).json({
+          error: `Not enough questions: exam has ${count} but requires ${qps} per student. Add ${qps - count} more question(s) before publishing.`,
+        });
+      }
+    }
+
+    const { rows } = await pool.query(
+      `UPDATE exams SET status='SCHEDULED' WHERE id=$1 AND status='DRAFT' RETURNING *`,
+      [req.params.id]
+    );
+    await pool.query(
+      `INSERT INTO exam_enrollments (exam_id, student_id)
+       SELECT $1, id FROM users WHERE role='STUDENT'
+       ON CONFLICT DO NOTHING`,
+      [req.params.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.post('/exams/:id/enrol-all', ...guard, async (req, res) => {

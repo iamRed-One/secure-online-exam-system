@@ -8,24 +8,40 @@ async function createExam(body, lecturerId) {
     endWindow,
     violationThreshold = 3,
     gracePeriodSeconds = 60,
+    questionsPerStudent = null,
   } = body;
 
   const { rows } = await pool.query(
     `INSERT INTO exams
-       (title, lecturer_id, duration_seconds, start_window, end_window, violation_threshold, grace_period_seconds)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+       (title, lecturer_id, duration_seconds, start_window, end_window, violation_threshold, grace_period_seconds, questions_per_student)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING *`,
-    [title, lecturerId, durationSeconds, startWindow, endWindow, violationThreshold, gracePeriodSeconds]
+    [title, lecturerId, durationSeconds, startWindow, endWindow, violationThreshold, gracePeriodSeconds, questionsPerStudent || null]
   );
   return rows[0];
 }
 
 async function publishExam(examId, lecturerId) {
+  const { rows: examRows } = await pool.query(
+    `SELECT questions_per_student FROM exams WHERE id = $1 AND lecturer_id = $2 AND status = 'DRAFT'`,
+    [examId, lecturerId]
+  );
+  if (!examRows[0]) return null;
+
+  const qps = examRows[0].questions_per_student;
+  if (qps) {
+    const { rows: countRows } = await pool.query(
+      `SELECT COUNT(*) FROM question_bank WHERE exam_id = $1`,
+      [examId]
+    );
+    const count = parseInt(countRows[0].count, 10);
+    if (count < qps) {
+      throw new Error(`Not enough questions: exam has ${count} but requires ${qps} per student. Add ${qps - count} more question(s) before publishing.`);
+    }
+  }
+
   const { rows } = await pool.query(
-    `UPDATE exams
-     SET status = 'SCHEDULED'
-     WHERE id = $1 AND lecturer_id = $2 AND status = 'DRAFT'
-     RETURNING *`,
+    `UPDATE exams SET status = 'SCHEDULED' WHERE id = $1 AND lecturer_id = $2 AND status = 'DRAFT' RETURNING *`,
     [examId, lecturerId]
   );
   return rows[0] || null;

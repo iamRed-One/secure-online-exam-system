@@ -20,7 +20,7 @@ async function gradeSession(examId, studentId) {
 
   // Get the submitted/flagged session
   const sessionRes = await pool.query(
-    `SELECT id, answers, status
+    `SELECT id, answers, status, question_order, manual_scores
      FROM exam_sessions
      WHERE exam_id = $1 AND student_id = $2 AND status IN ('SUBMITTED', 'FLAGGED')`,
     [examId, studentId]
@@ -30,12 +30,23 @@ async function gradeSession(examId, studentId) {
   }
   const session = sessionRes.rows[0];
   const answers = session.answers || {};
+  const questionOrder = session.question_order || [];
+  const manualScores = session.manual_scores || {};
 
-  // Get all questions for this exam
-  const questionsRes = await pool.query(
-    'SELECT * FROM question_bank WHERE exam_id = $1',
-    [examId]
-  );
+  // Grade only the questions in this student's subset (their question_order)
+  let questionsRes;
+  if (questionOrder.length > 0) {
+    questionsRes = await pool.query(
+      'SELECT * FROM question_bank WHERE id = ANY($1::uuid[])',
+      [questionOrder]
+    );
+  } else {
+    // Backward compat: old sessions with no question_order
+    questionsRes = await pool.query(
+      'SELECT * FROM question_bank WHERE exam_id = $1',
+      [examId]
+    );
+  }
   const questions = questionsRes.rows;
 
   let score = 0;
@@ -51,14 +62,17 @@ async function gradeSession(examId, studentId) {
         score += q.marks;
       }
     } else if (q.type === 'SHORT') {
-      // Auto-grade SHORT answers: case-insensitive, trimmed exact match
       const correctAnswer = decrypt(q.correct_answer).trim().toLowerCase();
       const studentAnswer = (answers[q.id] || '').trim().toLowerCase();
       if (studentAnswer && studentAnswer === correctAnswer) {
         score += q.marks;
       }
+    } else if (q.type === 'LONG') {
+      const awarded = manualScores[q.id];
+      if (awarded !== undefined && awarded !== null) {
+        score += Math.min(Number(awarded), q.marks);
+      }
     }
-    // LONG: always manual grading (too subjective for auto-grade)
   }
 
   const flagged = session.status === 'FLAGGED';

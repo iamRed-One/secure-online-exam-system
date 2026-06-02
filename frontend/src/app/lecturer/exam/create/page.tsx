@@ -12,6 +12,7 @@ interface FormData {
   endWindow: string;
   violationThreshold: number;
   gracePeriodSeconds: number;
+  questionsPerStudent: number | '';
 }
 
 export default function CreateExam() {
@@ -23,6 +24,7 @@ export default function CreateExam() {
     endWindow: '',
     violationThreshold: 3,
     gracePeriodSeconds: 60,
+    questionsPerStudent: '',
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -31,7 +33,7 @@ export default function CreateExam() {
     const { name, value, type } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value,
+      [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value,
     }));
   }
 
@@ -40,9 +42,13 @@ export default function CreateExam() {
     setError('');
     setSubmitting(true);
     try {
+      const payload = {
+        ...form,
+        questionsPerStudent: form.questionsPerStudent === '' ? null : form.questionsPerStudent,
+      };
       const exam = await apiFetch('/exams', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       router.push(`/lecturer/exam/${exam.id}/questions`);
     } catch (err: any) {
@@ -148,6 +154,22 @@ export default function CreateExam() {
                   className={inputCls}
                 />
               </div>
+            </div>
+
+            <div>
+              <label className={labelCls}>Questions Per Student <span className="normal-case text-slate-400 font-normal">(optional)</span></label>
+              <input
+                type="number"
+                name="questionsPerStudent"
+                value={form.questionsPerStudent}
+                onChange={handleChange}
+                min={1}
+                placeholder="Leave blank to give all questions"
+                className={inputCls}
+              />
+              <p className="text-xs text-slate-400 dark:text-gray-500 mt-1">
+                Each student gets this many randomly selected questions. You must add at least this many questions before publishing.
+              </p>
             </div>
 
             <button
