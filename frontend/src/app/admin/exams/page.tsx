@@ -231,7 +231,7 @@ export default function AdminExamsPage() {
           {exams.map(exam => (
             <div key={exam.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-5 flex items-center gap-4">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-800 dark:text-white/90 font-['Plus_Jakarta_Sans'] truncate">
+                <p className="font-semibold text-slate-800 dark:text-white/90 font-['Outfit'] capitalize truncate">
                   {exam.title}
                 </p>
                 <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">

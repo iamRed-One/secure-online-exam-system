@@ -6,6 +6,7 @@ import apiFetch from '../lib/api';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -28,8 +29,8 @@ export default function LoginPage() {
       else if (payload.role === 'TEACHER') router.push('/lecturer/dashboard');
       else if (payload.role === 'ADMIN') router.push('/admin/users');
       else router.push('/login');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unable to sign in');
     } finally {
       setLoading(false);
     }
@@ -79,13 +80,30 @@ export default function LoginPage() {
               </svg>
             </span>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               required
               placeholder="Password"
-              className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full border border-gray-200 rounded-lg pl-9 pr-10 py-2.5 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(prev => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+            >
+              {showPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fillRule="evenodd" d="M.458 10C1.733 5.943 6.675 3.136 12 3.136c5.325 0 10.268 2.807 11.542 6.864-1.274 4.057-6.217 6.864-11.542 6.864-5.325 0-10.268-2.807-11.542-6.864zM12 15a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414L15.414 2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2H5z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
           </div>
 
           {/* Forgot password */}

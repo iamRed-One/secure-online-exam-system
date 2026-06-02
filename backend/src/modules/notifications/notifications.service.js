@@ -5,13 +5,17 @@ const pool = require('../../db/client');
  * (same user_id + type + exam_id). Prevents duplicate reminders.
  */
 async function createNotification(userId, type, message, examId = null) {
+  const existing = await pool.query(
+    `SELECT 1 FROM notifications
+     WHERE user_id=$1 AND type=$2
+       AND (($3::uuid IS NULL AND exam_id IS NULL) OR exam_id=$3::uuid)
+     LIMIT 1`,
+    [userId, type, examId]
+  );
+  if (existing.rows.length > 0) return;
+
   await pool.query(
-    `INSERT INTO notifications (user_id, type, message, exam_id)
-     SELECT $1, $2, $3, $4
-     WHERE NOT EXISTS (
-       SELECT 1 FROM notifications
-       WHERE user_id=$1 AND type=$2 AND (exam_id=$4 OR (exam_id IS NULL AND $4 IS NULL))
-     )`,
+    `INSERT INTO notifications (user_id, type, message, exam_id) VALUES ($1,$2,$3,$4)`,
     [userId, type, message, examId]
   );
 }
