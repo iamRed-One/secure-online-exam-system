@@ -24,12 +24,6 @@ interface QuestionForm {
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
-const typeBadge: Record<string, string> = {
-  MCQ:   'bg-blue-100 text-blue-700',
-  SHORT: 'bg-violet-100 text-violet-700',
-  LONG:  'bg-orange-100 text-orange-700',
-};
-
 export default function QuestionsPage() {
   const params  = useParams();
   const examId  = params.id as string;
@@ -56,8 +50,8 @@ export default function QuestionsPage() {
       ]);
       setQuestions(data);
       setQps(exam.questions_per_student ?? null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -89,7 +83,7 @@ export default function QuestionsPage() {
       await apiFetch(`/exams/${examId}/questions/${qid}`, { method: 'DELETE' },
         { loading: 'Deleting…', success: 'Question deleted', error: 'Failed to delete' });
       fetchQuestions();
-    } catch (err: any) { setError(err.message); }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Something went wrong'); }
   }
 
   async function handleAddQuestion(e: React.FormEvent) {
@@ -100,7 +94,7 @@ export default function QuestionsPage() {
     setSubmitting(true);
     setError('');
     try {
-      const payload: any = { ...form };
+      const payload: Record<string, unknown> = { ...form };
       if (form.type !== 'MCQ') delete payload.options;
 
       if (editingId) {
@@ -115,8 +109,8 @@ export default function QuestionsPage() {
       }
       setForm(emptyForm);
       fetchQuestions();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setSubmitting(false);
     }
@@ -127,7 +121,7 @@ export default function QuestionsPage() {
     try {
       await apiFetch(`/exams/${examId}/publish`, { method: 'PATCH' }, { loading: 'Publishing exam…', success: 'Exam published!', error: 'Failed to publish' });
       setPublishMsg('Exam published! Students can now see and enter it.');
-    } catch (err: any) { setError(err.message); }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Something went wrong'); }
   }
 
   function setOption(i: number, val: string) {

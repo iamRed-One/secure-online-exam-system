@@ -1,13 +1,13 @@
 'use client';
 
-interface Violation {
+export interface Violation {
   timestamp: string;
   eventType: string;
-  severity: 'HIGH' | 'MEDIUM' | 'LOW';
+  severity: string;
 }
 
 interface ProctorReportProps {
-  violations: Violation[] | any[] | null;
+  violations: Violation[] | null;
 }
 
 const severityStyles: Record<string, string> = {
@@ -39,7 +39,7 @@ export default function ProctorReport({ violations }: ProctorReportProps) {
 
   return (
     <div className="mt-2 space-y-1">
-      {violations.map((v: any, idx: number) => {
+      {violations.map((v, idx) => {
         const severity: string = v.severity ?? 'LOW';
         const colorClass = severityStyles[severity] ?? 'text-gray-500 dark:text-gray-400';
         return (

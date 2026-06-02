@@ -43,8 +43,8 @@ export default function WaitingPage({ params }: WaitingPageProps) {
         body: JSON.stringify({ examId }),
       }, { loading: 'Starting exam…', success: 'Exam started!', error: 'Failed to begin exam' });
       router.push(`/student/exam/${examId}/session`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to begin exam.');
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Failed to begin exam.');
       setStarting(false);
     }
   }

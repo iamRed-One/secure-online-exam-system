@@ -1,10 +1,13 @@
 import React from "react";
 
 type IconProps = { className?: string };
-const icon = (path: React.ReactNode, vb = "0 0 24 24") =>
-  ({ className = "w-6 h-6" }: IconProps) => (
+const icon = (path: React.ReactNode, vb = "0 0 24 24") => {
+  const Icon = ({ className = "w-6 h-6" }: IconProps) => (
     <svg className={className} viewBox={vb} fill="none" xmlns="http://www.w3.org/2000/svg">{path}</svg>
   );
+  Icon.displayName = "Icon";
+  return Icon;
+};
 
 export const GridIcon = icon(<><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/></>);
 export const UserCircleIcon = icon(<path fillRule="evenodd" clipRule="evenodd" d="M12 3.5C7.306 3.5 3.5 7.306 3.5 12s3.806 8.5 8.5 8.5 8.5-3.806 8.5-8.5S16.694 3.5 12 3.5zM9.98 9.268a2.02 2.02 0 104.04 0 2.02 2.02 0 00-4.04 0zM6.975 17.856A5.985 5.985 0 0012 20.5a5.985 5.985 0 005.025-2.644A4.502 4.502 0 0012.725 16h-1.45a4.502 4.502 0 00-4.3 1.856z" fill="currentColor"/>);

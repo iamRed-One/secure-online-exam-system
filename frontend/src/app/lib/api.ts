@@ -65,12 +65,12 @@ async function apiFetch(
     }
 
     return data;
-  } catch (err: any) {
+  } catch (err) {
     // If not already shown via toastId, fire an error toast automatically
     if (toastId === undefined && typeof window !== 'undefined') {
       // Only show auto-error toast for non-network errors to avoid duplicate alerts
       if (!(err instanceof TypeError)) {
-        toast.error(err.message || 'Something went wrong');
+        toast.error((err instanceof Error && err.message) || 'Something went wrong');
       }
     }
     throw err;

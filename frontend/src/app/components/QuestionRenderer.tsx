@@ -1,7 +1,17 @@
 'use client';
 
+interface Question {
+  done?: boolean;
+  index?: number;
+  total?: number;
+  marks?: number;
+  type?: string;
+  content?: string;
+  options?: string[];
+}
+
 interface QuestionRendererProps {
-  question: any;
+  question: Question | null;
   currentAnswer: string;
   onAnswer: (answer: string) => void;
 }

@@ -6,16 +6,19 @@ import DashboardLayout from '../../../../layout/DashboardLayout';
 
 const LABELS = ['A', 'B', 'C', 'D'];
 
-const typeBadge: Record<string, string> = {
-  MCQ:   'bg-blue-100 text-blue-700',
-  SHORT: 'bg-violet-100 text-violet-700',
-  LONG:  'bg-orange-100 text-orange-700',
+type Question = {
+  id: string;
+  content: string;
+  type: string;
+  correctAnswer: string;
+  marks: number;
+  options?: string[];
 };
 
 export default function AdminQuestionsPage() {
   const { id: examId } = useParams() as { id: string };
   const router = useRouter();
-  const [questions, setQuestions]     = useState<any[]>([]);
+  const [questions, setQuestions]     = useState<Question[]>([]);
   const [questionsPerStudent, setQps] = useState<number | null>(null);
   const [error, setError]             = useState('');
   const [submitting, setSubmitting]   = useState(false);
@@ -32,12 +35,12 @@ export default function AdminQuestionsPage() {
       setQuestions(data);
       setQps(exam.questions_per_student ?? null);
     }
-    catch (e: any) { setError(e.message); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Something went wrong'); }
   }
 
   useEffect(() => { fetchQuestions(); }, [examId]);
 
-  function handleEditClick(q: any) {
+  function handleEditClick(q: Question) {
     setEditingId(q.id);
     setForm({ content: q.content, type: q.type, correctAnswer: q.correctAnswer, marks: q.marks, options: q.options ?? ['','','',''] });
     document.getElementById('admin-question-form')?.scrollIntoView({ behavior: 'smooth' });
@@ -51,7 +54,7 @@ export default function AdminQuestionsPage() {
       return setError('All 4 options must be filled.');
     setSubmitting(true); setError('');
     try {
-      const payload: any = { ...form };
+      const payload: Record<string, unknown> = { ...form };
       if (form.type !== 'MCQ') delete payload.options;
       if (editingId) {
         await apiFetch(`/exams/${examId}/questions/${editingId}`, { method: 'PUT', body: JSON.stringify(payload) },
@@ -63,7 +66,7 @@ export default function AdminQuestionsPage() {
       }
       setForm(emptyForm);
       fetchQuestions();
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError(e instanceof Error ? e.message : 'Something went wrong'); }
     finally { setSubmitting(false); }
   }
 
@@ -71,7 +74,7 @@ export default function AdminQuestionsPage() {
     try {
       await apiFetch(`/exams/${examId}/questions/${qid}`, { method: 'DELETE' });
       fetchQuestions();
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError(e instanceof Error ? e.message : 'Something went wrong'); }
   }
 
   function setOption(i: number, val: string) {

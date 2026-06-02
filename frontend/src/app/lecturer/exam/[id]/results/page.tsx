@@ -3,15 +3,35 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import apiFetch from '@/app/lib/api';
-import ProctorReport from '@/app/components/ProctorReport';
+import ProctorReport, { type Violation } from '@/app/components/ProctorReport';
 import DashboardLayout from '@/app/layout/DashboardLayout';
+
+interface ResultQuestion {
+  id: string;
+  content: string;
+  type: string;
+  correctAnswer: string;
+  marks: number;
+}
+
+interface SessionResult {
+  id: string;
+  session_id: string;
+  student_email: string;
+  score: number;
+  total: number;
+  flagged?: boolean;
+  session_answers?: Record<string, string>;
+  manual_scores?: Record<string, number>;
+  violations?: Violation[];
+}
 
 export default function LecturerResults() {
   const params  = useParams();
   const examId  = params.id as string;
 
-  const [results, setResults]           = useState<any[]>([]);
-  const [questions, setQuestions]       = useState<any[]>([]);
+  const [results, setResults]           = useState<SessionResult[]>([]);
+  const [questions, setQuestions]       = useState<ResultQuestion[]>([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState('');
   const [expanded, setExpanded]         = useState<string | null>(null);
@@ -27,8 +47,8 @@ export default function LecturerResults() {
       ]);
       setResults(r);
       setQuestions(q);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -69,7 +89,7 @@ export default function LecturerResults() {
   );
 
   // Build a map from question id → question for quick lookup
-  const questionMap: Record<string, any> = {};
+  const questionMap: Record<string, ResultQuestion> = {};
   questions.forEach(q => { questionMap[q.id] = q; });
 
   return (
@@ -96,7 +116,6 @@ export default function LecturerResults() {
                     const pct       = result.total > 0 ? Math.round((result.score / result.total) * 100) : 0;
                     const answers   = result.session_answers || {};
                     const isOpen    = expanded === result.id;
-                    const hasManual = questions.some(q => q.type !== 'MCQ');
 
                     return (
                       <>

@@ -51,8 +51,8 @@ export default function CreateExam() {
         body: JSON.stringify(payload),
       });
       router.push(`/lecturer/exam/${exam.id}/questions`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to create exam.');
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Failed to create exam.');
     } finally {
       setSubmitting(false);
     }

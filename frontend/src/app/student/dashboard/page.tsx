@@ -37,8 +37,8 @@ export default function StudentDashboard() {
       ]);
       setEnrolled(enrolledData);
       setAvailable(availableData);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -51,8 +51,8 @@ export default function StudentDashboard() {
     try {
       await apiFetch(`/exams/${examId}/enrol-self`, { method: 'POST' }, { loading: 'Enrolling…', success: 'Enrolled successfully!', error: 'Enrolment failed' });
       fetchAll();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Something went wrong');
     } finally {
       setEnrolling(null);
     }

@@ -18,8 +18,8 @@ export default function AdminUsersPage() {
     try {
       const data = await apiFetch('/admin/users');
       setUsers(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     }
   }
 
@@ -46,8 +46,8 @@ export default function AdminUsersPage() {
       setSuccess(`User ${form.email} created.`);
       setForm({ email: '', password: '', role: 'STUDENT' });
       fetchUsers();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     }
   }
 

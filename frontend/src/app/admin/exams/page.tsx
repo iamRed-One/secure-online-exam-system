@@ -11,6 +11,10 @@ type Exam = {
   start_window: string; end_window: string;
 };
 
+type Enrollment = {
+  id: string; email: string; session_status?: string;
+};
+
 export default function AdminExamsPage() {
   const router = useRouter();
   const pathname = usePathname();
@@ -26,7 +30,7 @@ export default function AdminExamsPage() {
 
   async function fetchExams() {
     try { setExams(await apiFetch('/admin/exams')); }
-    catch (e: any) { setError(e.message); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Something went wrong'); }
   }
 
   useEffect(() => { fetchExams(); }, []);
@@ -39,14 +43,14 @@ export default function AdminExamsPage() {
       setForm({ title: '', durationSeconds: 3600, startWindow: '', endWindow: '', violationThreshold: 3, gracePeriodSeconds: 60, questionsPerStudent: '' });
       setShowForm(false);
       fetchExams();
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError(e instanceof Error ? e.message : 'Something went wrong'); }
   }
 
   async function handlePublish(id: string) {
     try {
       await apiFetch(`/admin/exams/${id}/publish`, { method: 'PATCH' }, { loading: 'Publishing…', success: 'Exam published! All students enrolled.', error: 'Failed to publish' });
       fetchExams();
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError(e instanceof Error ? e.message : 'Something went wrong'); }
   }
 
   async function handleDeleteExam(id: string, title: string) {
@@ -59,7 +63,7 @@ export default function AdminExamsPage() {
   }
 
   const [enrollmentsExamId, setEnrollmentsExamId] = useState<string | null>(null);
-  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
 
   async function openEnrollments(id: string) {
     setEnrollmentsExamId(id);
@@ -80,7 +84,7 @@ export default function AdminExamsPage() {
     try {
       await apiFetch(`/admin/exams/${id}/enrol-all`, { method: 'POST' }, { loading: 'Enrolling students…', success: 'All students enrolled!', error: 'Enrolment failed' });
       alert('All students enrolled.');
-    } catch (e: any) { setError(e.message); }
+    } catch (e) { setError(e instanceof Error ? e.message : 'Something went wrong'); }
   }
 
   const STATUS_BADGE: Record<string, string> = {

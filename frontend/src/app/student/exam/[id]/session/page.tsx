@@ -12,11 +12,22 @@ interface SessionPageProps {
   params: { id: string };
 }
 
+interface SessionQuestion {
+  done?: boolean;
+  index?: number;
+  total?: number;
+  marks?: number;
+  type?: string;
+  content?: string;
+  options?: string[];
+  savedAnswer?: string;
+}
+
 export default function SessionPage({ params }: SessionPageProps) {
   const router  = useRouter();
   const examId  = params.id;
 
-  const [question, setQuestion]       = useState<any>(null);
+  const [question, setQuestion]       = useState<SessionQuestion | null>(null);
   const [currentAnswer, setAnswer]    = useState('');
   const [questionIndex, setIndex]     = useState(1);
   const [total, setTotal]             = useState(0);
@@ -32,8 +43,8 @@ export default function SessionPage({ params }: SessionPageProps) {
       setQuestion(data);
       setAnswer(data.savedAnswer || '');
       if (data.total) setTotal(data.total);
-    } catch (err: any) {
-      showBanner(err.message || 'Failed to load question.');
+    } catch (err) {
+      showBanner((err instanceof Error && err.message) || 'Failed to load question.');
     }
   }
 
@@ -70,8 +81,8 @@ export default function SessionPage({ params }: SessionPageProps) {
         method: 'POST',
         body: JSON.stringify({ examId, questionIndex, answer: currentAnswer }),
       });
-    } catch (err: any) {
-      showBanner(err.message || 'Failed to save answer.');
+    } catch (err) {
+      showBanner((err instanceof Error && err.message) || 'Failed to save answer.');
     } finally {
       setSaving(false);
     }
@@ -101,14 +112,13 @@ export default function SessionPage({ params }: SessionPageProps) {
         body: JSON.stringify({ examId }),
       }, { loading: 'Submitting exam…', success: 'Exam submitted!', error: 'Submission failed' });
       router.push(`/student/exam/${examId}/result`);
-    } catch (err: any) {
-      showBanner(err.message || 'Failed to submit.');
+    } catch (err) {
+      showBanner((err instanceof Error && err.message) || 'Failed to submit.');
       setSubmitting(false);
     }
   }
 
   const isFirst = questionIndex <= 1;
-  const isLast  = questionIndex >= total;
 
   return (
     <ExamLockdown examId={examId} onViolation={handleViolation} onFlagged={handleFlagged}>
