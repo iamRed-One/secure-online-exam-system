@@ -8,7 +8,7 @@ import DashboardLayout from '@/app/layout/DashboardLayout';
 interface Exam {
   id: string;
   title: string;
-  durationSeconds: number;
+  duration_seconds: number;
   status: string;
   start_window?: string;
 }
@@ -82,7 +82,7 @@ export default function LecturerDashboard() {
                 </h2>
                 <div className="space-y-1 mt-1">
                   <p className="text-xs text-slate-400 flex items-center gap-1">
-                    <span>⏱</span> {Math.round(exam.durationSeconds / 60)} min
+                    <span>⏱</span> {Math.round(exam.duration_seconds / 60)} min
                   </p>
                   {exam.start_window && (
                     <p className="text-xs text-slate-400 dark:text-gray-500 flex items-center gap-1">

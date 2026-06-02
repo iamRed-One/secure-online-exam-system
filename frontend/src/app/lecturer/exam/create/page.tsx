@@ -81,7 +81,12 @@ export default function CreateExam() {
             </div>
 
             <div>
-              <label className={labelCls}>Duration (seconds)</label>
+              <div className="flex items-baseline justify-between mb-1">
+                <label className={labelCls} style={{ marginBottom: 0 }}>Duration (seconds)</label>
+                <span className="text-xs text-brand-500 font-medium">
+                  = {form.durationSeconds > 0 ? Math.round(form.durationSeconds / 60) : 0} min
+                </span>
+              </div>
               <input
                 type="number"
                 name="durationSeconds"
@@ -91,6 +96,7 @@ export default function CreateExam() {
                 required
                 className={inputCls}
               />
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Enter time in seconds. E.g. 3600 = 60 min, 1800 = 30 min</p>
             </div>
 
             <div>

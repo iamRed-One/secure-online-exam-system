@@ -150,7 +150,10 @@ export default function AdminExamsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Duration (seconds)</label>
+                  <div className="flex items-baseline justify-between mb-1">
+                    <label className="block text-xs text-slate-500 dark:text-gray-400">Duration (seconds)</label>
+                    <span className="text-xs text-brand-500 font-medium">= {form.durationSeconds > 0 ? Math.round(form.durationSeconds / 60) : 0} min</span>
+                  </div>
                   <input
                     type="number"
                     value={form.durationSeconds}
