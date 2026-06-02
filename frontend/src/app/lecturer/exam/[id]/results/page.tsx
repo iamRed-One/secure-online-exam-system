@@ -10,21 +10,47 @@ export default function LecturerResults() {
   const params  = useParams();
   const examId  = params.id as string;
 
-  const [results, setResults]     = useState<any[]>([]);
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState('');
-  const [expanded, setExpanded]   = useState<string | null>(null);
+  const [results, setResults]           = useState<any[]>([]);
+  const [questions, setQuestions]       = useState<any[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [error, setError]               = useState('');
+  const [expanded, setExpanded]         = useState<string | null>(null);
+  // manualInputs[sessionId][questionId] = score string being edited
+  const [manualInputs, setManualInputs] = useState<Record<string, Record<string, string>>>({});
+  const [savingKey, setSavingKey]       = useState<string | null>(null); // `${sessionId}-${questionId}`
 
-  useEffect(() => {
-    Promise.all([
-      apiFetch(`/exams/${examId}/results`),
-      apiFetch(`/exams/${examId}/questions`),
-    ])
-      .then(([r, q]) => { setResults(r); setQuestions(q); })
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [examId]);
+  async function fetchAll() {
+    try {
+      const [r, q] = await Promise.all([
+        apiFetch(`/exams/${examId}/results`),
+        apiFetch(`/exams/${examId}/questions`),
+      ]);
+      setResults(r);
+      setQuestions(q);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { fetchAll(); }, [examId]);
+
+  async function handleSaveManualScore(sessionId: string, questionId: string, score: string) {
+    const key = `${sessionId}-${questionId}`;
+    setSavingKey(key);
+    try {
+      await apiFetch(`/exams/${examId}/results/${sessionId}/manual-score`, {
+        method: 'PATCH',
+        body: JSON.stringify({ questionId, score: Number(score) }),
+      }, { loading: 'Saving score…', success: 'Score saved!', error: 'Failed to save score' });
+      await fetchAll();
+    } catch {
+      // toast already shown by apiFetch
+    } finally {
+      setSavingKey(null);
+    }
+  }
 
   if (loading) return (
     <DashboardLayout role="TEACHER">
@@ -149,7 +175,7 @@ export default function LecturerResults() {
                                         </div>
                                       )}
 
-                                      {(q.type === 'SHORT' || q.type === 'LONG') && (
+                                      {q.type === 'SHORT' && (
                                         <div className="mt-3 bg-slate-50 dark:bg-gray-900 rounded-lg p-3 border border-slate-200 dark:border-gray-700">
                                           <p className="text-xs text-slate-400 dark:text-gray-500 mb-1 uppercase tracking-wide font-medium">Student&apos;s answer</p>
                                           {studentAnswer ? (
@@ -159,6 +185,51 @@ export default function LecturerResults() {
                                           )}
                                         </div>
                                       )}
+
+                                      {q.type === 'LONG' && (() => {
+                                        const sessionId = result.session_id;
+                                        const savedScore = result.manual_scores?.[q.id];
+                                        const inputVal = manualInputs[sessionId]?.[q.id] ?? (savedScore !== undefined ? String(savedScore) : '');
+                                        const saveKey = `${sessionId}-${q.id}`;
+                                        return (
+                                          <div className="mt-3 space-y-2">
+                                            <div className="bg-slate-50 dark:bg-gray-900 rounded-lg p-3 border border-slate-200 dark:border-gray-700">
+                                              <p className="text-xs text-slate-400 dark:text-gray-500 mb-1 uppercase tracking-wide font-medium">Student&apos;s answer</p>
+                                              {studentAnswer ? (
+                                                <p className="text-sm text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{studentAnswer}</p>
+                                              ) : (
+                                                <p className="text-sm text-slate-400 dark:text-gray-500 italic">No answer provided</p>
+                                              )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-xs text-slate-500 dark:text-gray-400 flex-shrink-0">Award marks:</span>
+                                              <input
+                                                type="number"
+                                                min={0}
+                                                max={q.marks}
+                                                value={inputVal}
+                                                placeholder={`0–${q.marks}`}
+                                                onChange={e => setManualInputs(prev => ({
+                                                  ...prev,
+                                                  [sessionId]: { ...prev[sessionId], [q.id]: e.target.value },
+                                                }))}
+                                                className="w-20 border border-slate-200 dark:border-gray-700 rounded-lg px-2 py-1 text-sm text-slate-800 dark:text-white/90 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                              />
+                                              <span className="text-xs text-slate-400 dark:text-gray-500">/ {q.marks}</span>
+                                              <button
+                                                disabled={savingKey === saveKey || inputVal === ''}
+                                                onClick={() => handleSaveManualScore(sessionId, q.id, inputVal)}
+                                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
+                                              >
+                                                {savingKey === saveKey ? 'Saving…' : 'Save'}
+                                              </button>
+                                              {savedScore !== undefined && (
+                                                <span className="text-xs text-emerald-600 font-medium">✓ {savedScore}/{q.marks} saved</span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
                                   );
                                 })}

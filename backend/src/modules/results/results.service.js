@@ -111,6 +111,7 @@ async function getLecturerResults(examId, lecturerId) {
   const resultsRes = await pool.query(
     `SELECT r.*, u.email AS student_email, es.status AS session_status,
        es.answers AS session_answers,
+       es.manual_scores AS manual_scores,
        (SELECT json_agg(pl ORDER BY pl.timestamp)
         FROM proctor_logs pl WHERE pl.session_id = es.id) AS violations
      FROM results r
@@ -124,4 +125,46 @@ async function getLecturerResults(examId, lecturerId) {
   return resultsRes.rows;
 }
 
-module.exports = { gradeSession, getStudentResult, getLecturerResults };
+/**
+ * Save a manual score for a LONG answer question.
+ * Stores the score on the session then re-grades to update the result.
+ */
+async function saveManualScore(sessionId, examId, questionId, score, lecturerId) {
+  // Verify teacher owns this exam
+  const examRes = await pool.query(
+    'SELECT id FROM exams WHERE id=$1 AND lecturer_id=$2',
+    [examId, lecturerId]
+  );
+  if (!examRes.rows[0]) return { error: 'Exam not found or not owned by you' };
+
+  // Verify the question is LONG type and belongs to this exam, get max marks
+  const qRes = await pool.query(
+    'SELECT marks, type FROM question_bank WHERE id=$1 AND exam_id=$2',
+    [questionId, examId]
+  );
+  if (!qRes.rows[0]) return { error: 'Question not found' };
+  if (qRes.rows[0].type !== 'LONG') return { error: 'Only LONG questions can be manually graded' };
+
+  const maxMarks = qRes.rows[0].marks;
+  if (score < 0 || score > maxMarks) return { error: `Score must be between 0 and ${maxMarks}` };
+
+  // Update manual_scores on the session
+  await pool.query(
+    `UPDATE exam_sessions
+     SET manual_scores = manual_scores || jsonb_build_object($1::text, $2::numeric)
+     WHERE id=$3`,
+    [questionId, score, sessionId]
+  );
+
+  // Re-grade so the result record reflects the new score
+  const sessionRow = await pool.query(
+    'SELECT student_id FROM exam_sessions WHERE id=$1',
+    [sessionId]
+  );
+  if (!sessionRow.rows[0]) return { error: 'Session not found' };
+
+  const result = await gradeSession(examId, sessionRow.rows[0].student_id);
+  return { result };
+}
+
+module.exports = { gradeSession, getStudentResult, getLecturerResults, saveManualScore };
