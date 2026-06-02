@@ -58,31 +58,31 @@ export default function StudentResult() {
       <div className="max-w-2xl mx-auto">
 
         {/* Header card */}
-        <div className="bg-blue-600 text-white rounded-2xl p-6 mb-6 flex items-center justify-between">
+        <div className="bg-blue-600 text-white rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold font-['Plus_Jakarta_Sans']">Score</h1>
+            <h1 className="text-xl sm:text-2xl font-bold font-['Outfit']">Score</h1>
             <p className="text-blue-200 text-sm mt-1">
               {result.score} / {result.total} — {result.flagged ? 'Under review' : 'Confirmed result.'}
             </p>
           </div>
           <button
             onClick={() => router.push('/student/dashboard')}
-            className="bg-white text-blue-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-50"
+            className="bg-white text-blue-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-50 self-start sm:self-auto flex-shrink-0"
           >
-            Back to Dashboard
+            ← Dashboard
           </button>
         </div>
 
         {/* Main content card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8">
-          <div className="flex flex-col sm:flex-row gap-8">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
 
             {/* LEFT COLUMN — SVG rings */}
-            <div className="flex gap-6 items-center justify-center sm:justify-start">
+            <div className="flex gap-4 sm:gap-6 items-center justify-center sm:justify-start">
 
               {/* Ring 1 — Score */}
               <div className="flex flex-col items-center">
-                <svg viewBox="0 0 120 120" className="w-32 h-32">
+                <svg viewBox="0 0 120 120" className="w-24 h-24 sm:w-32 sm:h-32">
                   <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" strokeWidth="10" />
                   <circle
                     cx="60" cy="60" r="50"
@@ -104,7 +104,7 @@ export default function StudentResult() {
 
               {/* Ring 2 — Percentage */}
               <div className="flex flex-col items-center">
-                <svg viewBox="0 0 120 120" className="w-32 h-32">
+                <svg viewBox="0 0 120 120" className="w-24 h-24 sm:w-32 sm:h-32">
                   <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" strokeWidth="10" />
                   <circle
                     cx="60" cy="60" r="50"

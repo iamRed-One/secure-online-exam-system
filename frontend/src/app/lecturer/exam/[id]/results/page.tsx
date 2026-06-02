@@ -100,8 +100,8 @@ export default function LecturerResults() {
               <p className="text-slate-400 dark:text-gray-500 text-sm">No results yet.</p>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-x-auto">
+              <table className="w-full text-sm min-w-[580px]">
                 <thead className="bg-slate-50 dark:bg-gray-900 text-slate-500 dark:text-gray-400 uppercase text-xs">
                   <tr>
                     <th className="px-6 py-3 text-left font-medium tracking-wide">Student</th>

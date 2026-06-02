@@ -154,7 +154,7 @@ export default function AdminExamsPage() {
                   className={inputCls}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div className="flex items-baseline justify-between mb-1">
                     <label className="block text-xs text-slate-500 dark:text-gray-400">Duration (seconds)</label>
@@ -233,17 +233,25 @@ export default function AdminExamsPage() {
             </div>
           )}
           {exams.map(exam => (
-            <div key={exam.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-5 flex items-center gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-800 dark:text-white/90 font-['Outfit'] capitalize truncate">
-                  {exam.title}
-                </p>
+            <div key={exam.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-5 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-start justify-between sm:hidden">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-slate-800 dark:text-white/90 truncate">{exam.title}</p>
+                  <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
+                    {Math.round(exam.duration_seconds / 60)} min &middot; {exam.question_count} questions
+                  </p>
+                </div>
+                <span className={`ml-2 flex-shrink-0 ${STATUS_BADGE[exam.status] ?? 'bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-0.5 rounded-full'}`}>
+                  {exam.status}
+                </span>
+              </div>
+              <div className="hidden sm:block flex-1 min-w-0">
+                <p className="font-semibold text-slate-800 dark:text-white/90 truncate">{exam.title}</p>
                 <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">
                   {Math.round(exam.duration_seconds / 60)} min &middot; {exam.question_count} questions
                 </p>
               </div>
-
-              <span className={STATUS_BADGE[exam.status] ?? 'bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-0.5 rounded-full'}>
+              <span className={`hidden sm:inline ${STATUS_BADGE[exam.status] ?? 'bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-0.5 rounded-full'}`}>
                 {exam.status}
               </span>
 
@@ -292,7 +300,7 @@ export default function AdminExamsPage() {
           <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-800 dark:text-white/90 font-['Plus_Jakarta_Sans']">Enrolled Students</h2>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-white/90 font-['Outfit']">Enrolled Students</h2>
                 <button onClick={() => setEnrollmentsExamId(null)} className="text-slate-400 dark:text-gray-500 hover:text-slate-600 dark:hover:text-gray-300 text-xl font-bold">×</button>
               </div>
               {enrollments.length === 0 && <p className="text-slate-400 dark:text-gray-500 text-sm text-center py-4">No students enrolled.</p>}

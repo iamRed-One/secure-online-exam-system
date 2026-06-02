@@ -176,8 +176,8 @@ export default function QuestionsPage() {
               Questions ({questions.length}{questionsPerStudent !== null ? ` / ${questionsPerStudent} required` : ''})
             </h2>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-x-auto">
+              <table className="w-full text-sm min-w-[540px]">
                 <thead className="bg-slate-50 dark:bg-gray-900 border-b border-slate-100 dark:border-gray-700">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wide w-8">#</th>
@@ -253,7 +253,7 @@ export default function QuestionsPage() {
           <div className="max-w-2xl">
           <div id="question-form" className={`bg-white dark:bg-gray-800 rounded-2xl shadow-sm border p-6 ${editingId ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-100 dark:border-gray-700'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-800 dark:text-white/90 font-['Plus_Jakarta_Sans']">
+              <h2 className="text-base font-bold text-slate-800 dark:text-white/90 font-['Outfit']">
                 {editingId ? '✏️ Edit Question' : 'Add New Question'}
               </h2>
               {editingId && (

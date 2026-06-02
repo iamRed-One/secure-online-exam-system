@@ -77,7 +77,7 @@ export default function LecturerDashboard() {
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-6 flex flex-col gap-3"
             >
               <div className="flex-1">
-                <h2 className="font-semibold text-slate-800 dark:text-white/90 font-['Plus_Jakarta_Sans'] leading-snug">
+                <h2 className="font-semibold text-slate-800 dark:text-white/90 font-['Outfit'] leading-snug">
                   {exam.title}
                 </h2>
                 <div className="space-y-1 mt-1">

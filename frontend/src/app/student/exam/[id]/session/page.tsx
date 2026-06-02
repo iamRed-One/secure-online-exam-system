@@ -129,7 +129,7 @@ export default function SessionPage({ params }: SessionPageProps) {
         <div style={{ zIndex: 999999 }} className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
           <div className="bg-white rounded-2xl p-10 max-w-md text-center space-y-4 shadow-2xl">
             <div className="text-5xl">🚨</div>
-            <h2 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-red-700">Session Flagged</h2>
+            <h2 className="text-2xl font-['Outfit'] font-bold text-red-700">Session Flagged</h2>
             <p className="text-slate-700 text-sm leading-relaxed">
               Too many suspicious activities were detected during your exam.
               Your session has been flagged and submitted for review.
@@ -208,7 +208,7 @@ export default function SessionPage({ params }: SessionPageProps) {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-['Plus_Jakarta_Sans'] font-semibold py-3 rounded-xl transition-colors shadow-sm"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-['Outfit'] font-semibold py-3 rounded-xl transition-colors shadow-sm"
             >
               {submitting ? 'Submitting…' : 'Submit Exam'}
             </button>

@@ -68,9 +68,9 @@ export default function StudentDashboard() {
 
   return (
     <DashboardLayout role="STUDENT">
-          <header className="mb-8">
-            <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">My Exams</h1>
-          </header>
+          {/* <header className="mb-8">
+            <h1 className="text-2xl font-['Outfit'] font-bold text-slate-900 dark:text-white">My Exams</h1>
+          </header> */}
 
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
@@ -80,7 +80,7 @@ export default function StudentDashboard() {
 
         {/* My Exams */}
         <section className="mb-10">
-          <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 dark:text-white/90 mb-4">
+          <h2 className="text-lg font-['Outfit'] font-bold text-slate-800 dark:text-white/90 mb-4">
             My Exams
           </h2>
           {enrolled.length === 0 ? (
@@ -95,7 +95,7 @@ export default function StudentDashboard() {
                   className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-5 flex flex-col gap-3"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 dark:text-white/90 leading-snug">
+                    <h3 className="font-['Outfit'] font-semibold text-slate-800 dark:text-white/90 leading-snug">
                       {exam.title}
                     </h3>
                     <span className={`flex-shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[exam.status] || 'bg-slate-100 text-slate-600'}`}>
@@ -139,7 +139,7 @@ export default function StudentDashboard() {
         {/* Available Exams */}
         {available.length > 0 && (
           <section>
-            <h2 className="text-lg font-['Plus_Jakarta_Sans'] font-bold text-slate-800 dark:text-white/90 mb-1">
+            <h2 className="text-lg font-['Outfit'] font-bold text-slate-800 dark:text-white/90 mb-1">
               Available Exams
             </h2>
             <p className="text-sm text-slate-500 dark:text-gray-400 mb-4">Exams you can enrol in.</p>
@@ -149,7 +149,7 @@ export default function StudentDashboard() {
                   key={exam.id}
                   className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-dashed border-slate-200 dark:border-gray-700 p-5 flex flex-col gap-3"
                 >
-                  <h3 className="font-['Plus_Jakarta_Sans'] font-semibold text-slate-800 leading-snug">
+                  <h3 className="font-['Outfit'] font-semibold text-slate-800 leading-snug">
                     {exam.title}
                   </h3>
                   <div className="space-y-1">

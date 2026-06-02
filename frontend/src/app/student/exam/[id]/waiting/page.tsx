@@ -61,7 +61,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-6">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 max-w-md w-full p-10 text-center space-y-5">
           <div className="text-5xl">{sessionStatus === 'FLAGGED' ? '🚨' : '✅'}</div>
-          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-['Outfit'] font-bold text-slate-900 dark:text-white">
             {sessionStatus === 'FLAGGED' ? 'Exam Flagged' : 'Exam Already Completed'}
           </h1>
           <p className="text-slate-500 dark:text-gray-400 text-sm leading-relaxed">
@@ -94,7 +94,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-6">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 max-w-md w-full p-10 text-center space-y-5">
           <div className="text-5xl">⏱</div>
-          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">Exam In Progress</h1>
+          <h1 className="text-2xl font-['Outfit'] font-bold text-slate-900 dark:text-white">Exam In Progress</h1>
           <p className="text-slate-500 dark:text-gray-400 text-sm leading-relaxed">
             You have an active session for this exam. Resume where you left off.
           </p>
@@ -114,7 +114,7 @@ export default function WaitingPage({ params }: WaitingPageProps) {
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-6">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 max-w-lg w-full p-8 space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-['Plus_Jakarta_Sans'] font-bold text-slate-900 dark:text-white">Before You Begin</h1>
+          <h1 className="text-2xl font-['Outfit'] font-bold text-slate-900 dark:text-white">Before You Begin</h1>
           <p className="text-slate-500 dark:text-gray-400 text-sm">Read all rules carefully before starting.</p>
         </div>
 

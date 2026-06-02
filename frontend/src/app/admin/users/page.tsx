@@ -92,8 +92,8 @@ export default function AdminUsersPage() {
         {/* Create user form */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 p-6 mb-6">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-4">Create New User</h2>
-          <form onSubmit={handleCreate} className="flex flex-wrap gap-3 items-end">
-            <div className="flex-1 min-w-[180px]">
+          <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+            <div>
               <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Email</label>
               <input
                 required
@@ -104,7 +104,7 @@ export default function AdminUsersPage() {
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
               />
             </div>
-            <div className="flex-1 min-w-[140px]">
+            <div>
               <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Password</label>
               <input
                 required
@@ -115,7 +115,7 @@ export default function AdminUsersPage() {
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               />
             </div>
-            <div className="min-w-[130px]">
+            <div>
               <label className="block text-xs text-slate-500 dark:text-gray-400 mb-1">Role</label>
               <select
                 className={inputCls}
@@ -137,8 +137,8 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users table */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-slate-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[500px]">
             <thead className="bg-slate-50 dark:bg-gray-900 text-slate-500 dark:text-gray-400 uppercase text-xs">
               <tr>
                 <th className="px-6 py-3 text-left font-medium tracking-wide">Email</th>

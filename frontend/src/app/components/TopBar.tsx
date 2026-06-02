@@ -18,7 +18,7 @@ export default function TopBar({ title, userEmail, role }: TopBarProps) {
   return (
     <header className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between flex-shrink-0 z-30">
       {/* Left — page title */}
-      <h1 className="text-base font-bold text-slate-800 font-['Plus_Jakarta_Sans']">
+      <h1 className="text-base font-bold text-slate-800 font-['Outfit']">
         {title}
       </h1>
 
