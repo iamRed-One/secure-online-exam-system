@@ -1,6 +1,7 @@
 const pool = require('../../db/client');
 const { decrypt } = require('../../utils/crypto');
 const { shuffleQuestions, selectSubset } = require('../../utils/randomize');
+const { createNotification } = require('../notifications/notifications.service');
 
 async function beginSession(examId, studentId) {
   const { rows: existing } = await pool.query(
@@ -149,6 +150,27 @@ async function submitSession(examId, studentId) {
      RETURNING *`,
     [examId, studentId]
   );
+
+  if (rows[0]) {
+    // Check if all enrolled students have now finished (SUBMITTED or FLAGGED)
+    const countRes = await pool.query(
+      `SELECT
+         (SELECT COUNT(*) FROM exam_enrollments WHERE exam_id=$1) AS enrolled,
+         (SELECT COUNT(*) FROM exam_sessions WHERE exam_id=$1 AND status IN ('SUBMITTED','FLAGGED')) AS finished`,
+      [examId]
+    );
+    const { enrolled, finished } = countRes.rows[0];
+    if (parseInt(enrolled, 10) > 0 && parseInt(finished, 10) >= parseInt(enrolled, 10)) {
+      const examRes = await pool.query(
+        `SELECT title, lecturer_id FROM exams WHERE id=$1`, [examId]
+      );
+      if (examRes.rows[0]) {
+        const { title, lecturer_id } = examRes.rows[0];
+        await createNotification(lecturer_id, 'ALL_SUBMITTED',
+          `All students have submitted in "${title}".`, examId);
+      }
+    }
+  }
 
   return rows[0] || null;
 }

@@ -1,4 +1,5 @@
 const pool = require('../../db/client');
+const { createNotification } = require('../notifications/notifications.service');
 
 const SEVERITY_MAP = {
   TAB_SWITCH:      'HIGH',
@@ -47,6 +48,22 @@ async function logEvent(examId, studentId, type) {
         `UPDATE exam_sessions SET status='FLAGGED' WHERE id=$1 AND status='ACTIVE'`,
         [sessionId]
       );
+
+      // Notify student and exam lecturer
+      const examInfoRes = await pool.query(
+        `SELECT e.title, e.lecturer_id FROM exams e WHERE e.id=$1`,
+        [examId]
+      );
+      if (examInfoRes.rows[0]) {
+        const { title, lecturer_id } = examInfoRes.rows[0];
+        await Promise.all([
+          createNotification(studentId, 'SESSION_FLAGGED_STUDENT',
+            `Your session in "${title}" has been flagged due to too many violations.`, examId),
+          createNotification(lecturer_id, 'STUDENT_FLAGGED_TEACHER',
+            `A student was flagged in "${title}".`, examId),
+        ]);
+      }
+
       return { flagged: true };
     }
   }

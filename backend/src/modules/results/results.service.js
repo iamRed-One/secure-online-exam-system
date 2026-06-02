@@ -1,5 +1,6 @@
 const pool = require('../../db/client');
 const { decrypt } = require('../../utils/crypto');
+const { createNotification } = require('../notifications/notifications.service');
 
 /**
  * Grade a session for a given student on an exam.
@@ -83,6 +84,13 @@ async function gradeSession(examId, studentId) {
      RETURNING *`,
     [session.id, studentId, examId, score, total, flagged]
   );
+
+  // Notify student their result is ready
+  const examTitleRes = await pool.query(`SELECT title FROM exams WHERE id=$1`, [examId]);
+  if (examTitleRes.rows[0]) {
+    await createNotification(studentId, 'RESULT_READY',
+      `Your result for "${examTitleRes.rows[0].title}" is ready. Score: ${score}/${total}.`, examId);
+  }
 
   return insertRes.rows[0];
 }

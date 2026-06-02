@@ -9,7 +9,8 @@ const sessionRouter = require('./modules/session/session.router');
 const proctoringRouter = require('./modules/proctoring/proctoring.router');
 const { studentResultRouter, lecturerResultRouter } = require('./modules/results/results.router');
 const adminRouter   = require('./modules/admin/admin.router');
-const profileRouter = require('./modules/profile/profile.router');
+const profileRouter       = require('./modules/profile/profile.router');
+const notificationsRouter = require('./modules/notifications/notifications.router');
 
 const app = express();
 app.use(cors());
@@ -25,5 +26,6 @@ app.use('/session', studentResultRouter);
 app.use('/exams/:id/results', lecturerResultRouter);
 app.use('/admin',   adminRouter);
 app.use('/profile', profileRouter);
+app.use('/notifications', notificationsRouter);
 
 module.exports = app;
