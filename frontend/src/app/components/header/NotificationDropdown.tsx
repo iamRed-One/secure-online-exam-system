@@ -13,13 +13,14 @@ interface Notification {
 }
 
 const TYPE_ICON: Record<string, string> = {
-  EXAM_STARTING_SOON_30: "⏰",
-  EXAM_STARTING_SOON_10: "⏰",
-  EXAM_NOW_OPEN:         "🟢",
+  EXAM_STARTING_SOON_30:   "⏰",
+  EXAM_STARTING_SOON_10:   "⏰",
+  EXAM_NOW_OPEN:           "🟢",
   SESSION_FLAGGED_STUDENT: "🚨",
   STUDENT_FLAGGED_TEACHER: "🚨",
-  RESULT_READY:          "📋",
-  ALL_SUBMITTED:         "✅",
+  RESULT_READY:            "📋",
+  ALL_SUBMITTED:           "✅",
+  SCORE_UPDATED:           "✏️",
 };
 
 function timeAgo(iso: string): string {

@@ -171,7 +171,24 @@ async function saveManualScore(sessionId, examId, questionId, score, lecturerId)
   );
   if (!sessionRow.rows[0]) return { error: 'Session not found' };
 
-  const result = await gradeSession(examId, sessionRow.rows[0].student_id);
+  const studentId = sessionRow.rows[0].student_id;
+  const result = await gradeSession(examId, studentId);
+
+  // Notify the student their score was updated — always insert (no dedup) so
+  // each grading action generates a fresh notification
+  const examTitleRes = await pool.query(`SELECT title FROM exams WHERE id=$1`, [examId]);
+  if (examTitleRes.rows[0] && result) {
+    await pool.query(
+      `INSERT INTO notifications (user_id, type, message, exam_id)
+       VALUES ($1, 'SCORE_UPDATED', $2, $3)`,
+      [
+        studentId,
+        `Your score for "${examTitleRes.rows[0].title}" has been updated to ${result.score}/${result.total}.`,
+        examId,
+      ]
+    );
+  }
+
   return { result };
 }
 
