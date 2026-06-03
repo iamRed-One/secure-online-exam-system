@@ -19,8 +19,16 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Secure Exam System",
-  description: "Secure Online Exam System",
+  title: "SecureExam Portal",
+  description: "Secure Online Examination System — powered by formal methods",
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },           // fallback for older browsers
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
