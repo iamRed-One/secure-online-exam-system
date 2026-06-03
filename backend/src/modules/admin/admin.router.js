@@ -66,7 +66,12 @@ router.get('/exams/:id', ...guard, async (req, res) => {
 
 router.delete('/exams/:id', ...guard, async (req, res) => {
   try {
-    await pool.query('DELETE FROM exams WHERE id = $1', [req.params.id]);
+    const id = req.params.id;
+    // Must delete in dependency order — cascades handle the rest
+    await pool.query('DELETE FROM notifications WHERE exam_id=$1', [id]);
+    await pool.query('DELETE FROM results WHERE exam_id=$1', [id]);
+    await pool.query('DELETE FROM exam_sessions WHERE exam_id=$1', [id]); // cascades proctor_logs
+    await pool.query('DELETE FROM exams WHERE id=$1', [id]);             // cascades question_bank + enrollments
     res.json({ deleted: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
