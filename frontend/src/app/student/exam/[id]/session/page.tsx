@@ -126,89 +126,116 @@ export default function SessionPage({ params }: SessionPageProps) {
 
       {/* Flagged overlay — shown when session is terminated */}
       {flagged && (
-        <div style={{ zIndex: 999999 }} className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
-          <div className="bg-white rounded-2xl p-10 max-w-md text-center space-y-4 shadow-2xl">
-            <div className="text-5xl">🚨</div>
-            <h2 className="text-2xl font-['Outfit'] font-bold text-red-700">Session Flagged</h2>
-            <p className="text-slate-700 text-sm leading-relaxed">
+        <div style={{ zIndex: 999999 }} className="fixed inset-0 bg-black/80 flex items-center justify-center px-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-10 w-full max-w-md text-center space-y-3 shadow-2xl">
+            <div className="text-4xl sm:text-5xl">🚨</div>
+            <h2 className="text-xl sm:text-2xl font-bold text-red-700 dark:text-red-400">Session Flagged</h2>
+            <p className="text-slate-600 dark:text-gray-300 text-sm leading-relaxed">
               Too many suspicious activities were detected during your exam.
               Your session has been flagged and submitted for review.
             </p>
-            <p className="text-sm text-slate-400">Redirecting to results in 5 seconds…</p>
+            <p className="text-xs sm:text-sm text-slate-400 dark:text-gray-500">Redirecting to results in 5 seconds…</p>
           </div>
         </div>
       )}
 
       <div className="min-h-screen bg-slate-50 dark:bg-gray-900 flex flex-col">
         {/* Header bar */}
-        <header className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">S</div>
-            <span className="font-semibold text-slate-800 dark:text-white text-sm hidden sm:block">Secure Exam Portal</span>
+        <header className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 px-3 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs sm:text-sm font-bold flex-shrink-0">S</div>
+            <span className="font-semibold text-slate-800 dark:text-white text-xs sm:text-sm hidden sm:block">Secure Exam Portal</span>
           </div>
 
           {/* Timer — centered */}
-          <div className="flex flex-col items-center">
-            <span className="text-2xl font-mono font-bold text-red-500 tracking-widest">
-              <ServerClock examId={examId} />
-            </span>
-          </div>
+          <span className="text-xl sm:text-2xl font-mono font-bold text-red-500 tracking-widest">
+            <ServerClock examId={examId} />
+          </span>
 
           {/* Question counter */}
-          <div className="text-sm text-slate-500 dark:text-gray-400">
-            {total > 0 && `Question ${questionIndex} of ${total}`}
+          <div className="text-xs sm:text-sm text-slate-500 dark:text-gray-400 flex-shrink-0">
+            {total > 0 && <span><span className="hidden sm:inline">Question </span>{questionIndex}<span className="text-slate-300 dark:text-gray-600">/</span>{total}</span>}
           </div>
         </header>
 
         {/* Question area */}
-        <main className="flex-1 flex items-start justify-center p-6 pt-8">
-          <div className="max-w-2xl w-full space-y-4">
+        <main className="flex-1 flex items-start justify-center p-3 sm:p-6 sm:pt-8">
+          <div className="max-w-2xl w-full space-y-3 sm:space-y-4">
             {/* Question card */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-gray-700 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-8 shadow-sm border border-slate-100 dark:border-gray-700 space-y-5">
               <QuestionRenderer question={question} currentAnswer={currentAnswer} onAnswer={setAnswer} />
 
               {/* Navigation row */}
               {!question?.done && (
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-gray-700">
-                  <button
-                    onClick={handlePrev}
-                    disabled={isFirst || saving}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-gray-700 disabled:opacity-40 transition"
-                  >
-                    ← Back
-                  </button>
+                <div className="pt-4 border-t border-slate-100 dark:border-gray-700 space-y-3">
 
-                  {/* Progress dots centered */}
+                  {/* Progress indicator */}
                   {total > 0 && (
-                    <div className="flex gap-1.5">
-                      {Array.from({ length: total }).map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={async () => { await saveCurrentAnswer(); setIndex(i + 1); fetchQuestion(i + 1); }}
-                          className={`w-2 h-2 rounded-full transition ${
-                            i + 1 === questionIndex ? 'bg-blue-600 scale-125' : 'bg-slate-200 hover:bg-slate-300'
-                          }`}
-                        />
-                      ))}
+                    <div className="flex items-center justify-center gap-1.5 overflow-hidden">
+                      {total <= 20 ? (
+                        /* Dot style for small exams */
+                        Array.from({ length: total }).map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={async () => { await saveCurrentAnswer(); setIndex(i + 1); fetchQuestion(i + 1); }}
+                            className={`rounded-full transition-all flex-shrink-0 ${
+                              i + 1 === questionIndex
+                                ? 'w-2.5 h-2.5 bg-blue-600'
+                                : 'w-2 h-2 bg-slate-200 dark:bg-gray-600 hover:bg-slate-300'
+                            }`}
+                          />
+                        ))
+                      ) : (
+                        /* Windowed dots for large exams — shows 7 dots around current */
+                        <>
+                          {questionIndex > 4 && <span className="text-xs text-slate-400 dark:text-gray-500 flex-shrink-0">1</span>}
+                          {questionIndex > 4 && <span className="text-xs text-slate-300 dark:text-gray-600 flex-shrink-0">…</span>}
+                          {Array.from({ length: total }, (_, i) => i + 1)
+                            .filter(n => Math.abs(n - questionIndex) <= 3)
+                            .map(n => (
+                              <button
+                                key={n}
+                                onClick={async () => { await saveCurrentAnswer(); setIndex(n); fetchQuestion(n); }}
+                                className={`rounded-full transition-all flex-shrink-0 ${
+                                  n === questionIndex
+                                    ? 'w-2.5 h-2.5 bg-blue-600'
+                                    : 'w-2 h-2 bg-slate-200 dark:bg-gray-600 hover:bg-slate-300'
+                                }`}
+                              />
+                            ))}
+                          {questionIndex < total - 3 && <span className="text-xs text-slate-300 dark:text-gray-600 flex-shrink-0">…</span>}
+                          {questionIndex < total - 3 && <span className="text-xs text-slate-400 dark:text-gray-500 flex-shrink-0">{total}</span>}
+                        </>
+                      )}
                     </div>
                   )}
 
-                  <button
-                    onClick={handleNext}
-                    disabled={saving}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
-                  >
-                    {saving ? 'Saving…' : 'Next →'}
-                  </button>
+                  {/* Back / Next buttons */}
+                  <div className="flex items-center justify-between gap-3">
+                    <button
+                      onClick={handlePrev}
+                      disabled={isFirst || saving}
+                      className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl border border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-gray-700 disabled:opacity-40 transition"
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      disabled={saving}
+                      className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
+                    >
+                      {saving ? 'Saving…' : 'Next →'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Submit button — below the card */}
+            {/* Submit button */}
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-['Outfit'] font-semibold py-3 rounded-xl transition-colors shadow-sm"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors shadow-sm text-sm sm:text-base"
             >
               {submitting ? 'Submitting…' : 'Submit Exam'}
             </button>

@@ -102,7 +102,7 @@ export default function QuestionRenderer({ question, currentAnswer, onAnswer }: 
           placeholder="Type your detailed answer here..."
           value={currentAnswer}
           onChange={e => onAnswer(e.target.value)}
-          className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none transition"
+          className="w-full border border-slate-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white/90 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none transition"
         />
       )}
     </div>

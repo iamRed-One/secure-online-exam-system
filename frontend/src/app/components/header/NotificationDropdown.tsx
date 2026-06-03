@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { BellIcon } from "../../icons";
 import apiFetch from "../../lib/api";
@@ -36,6 +35,20 @@ export default function NotificationDropdown() {
   const [notifications, setNotifs]    = useState<Notification[]>([]);
   const [unread, setUnread]           = useState(0);
   const intervalRef                   = useRef<ReturnType<typeof setInterval> | null>(null);
+  const panelRef                      = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    function handleOutside(e: MouseEvent) {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(e.target as Node) &&
+        !(e.target as HTMLElement).closest('.dropdown-toggle')
+      ) setIsOpen(false);
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, []);
 
   async function fetchNotifications() {
     try {
@@ -77,57 +90,58 @@ export default function NotificationDropdown() {
         <BellIcon className="w-5 h-5" />
       </button>
 
-      <Dropdown
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        className="-right-[240px] mt-[17px] h-[380px] w-[350px] flex flex-col p-3 sm:w-[361px] lg:right-0"
-      >
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
-          <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Notifications
-            {unread > 0 && (
-              <span className="ml-2 text-xs bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded-full">{unread}</span>
-            )}
-          </h5>
-          <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path fillRule="evenodd" clipRule="evenodd" d="M6.22 7.28a.75.75 0 011.06 0L12 11.94l4.72-4.66a.75.75 0 111.06 1.06L13.06 13l4.72 4.72a.75.75 0 11-1.06 1.06L12 14.06l-4.72 4.72a.75.75 0 01-1.06-1.06L10.94 13 6.22 8.34a.75.75 0 010-1.06z" fill="currentColor" />
-            </svg>
-          </button>
-        </div>
+      {isOpen && (
+        <div
+          ref={panelRef}
+          className="fixed sm:absolute inset-x-2 sm:inset-x-auto top-[68px] sm:top-auto sm:right-0 sm:mt-[17px] z-50 flex flex-col rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900 max-h-[70vh] sm:h-[380px] sm:w-[361px]"
+        >
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <h5 className="text-base font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+              Notifications
+              {unread > 0 && (
+                <span className="text-xs bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded-full">{unread}</span>
+              )}
+            </h5>
+            <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path fillRule="evenodd" clipRule="evenodd" d="M6.22 7.28a.75.75 0 011.06 0L12 11.94l4.72-4.66a.75.75 0 111.06 1.06L13.06 13l4.72 4.72a.75.75 0 11-1.06 1.06L12 14.06l-4.72 4.72a.75.75 0 01-1.06-1.06L10.94 13 6.22 8.34a.75.75 0 010-1.06z" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
 
-        <ul className="flex flex-col overflow-y-auto custom-scrollbar flex-1">
-          {notifications.length === 0 ? (
-            <li className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 text-sm gap-2 py-8">
-              <BellIcon className="w-8 h-8 opacity-30" />
-              <span>No notifications yet</span>
-            </li>
-          ) : (
-            notifications.map(n => (
-              <li key={n.id}>
-                <DropdownItem
-                  onItemClick={() => setIsOpen(false)}
-                  baseClassName=""
-                  className={`flex gap-3 rounded-lg border-b border-gray-100 px-4 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 transition-colors ${!n.read ? "bg-blue-50 dark:bg-blue-900/20" : ""}`}
-                >
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-base">
-                    {TYPE_ICON[n.type] ?? "🔔"}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm text-gray-800 dark:text-white/90 leading-snug ${!n.read ? "font-semibold" : ""}`}>
-                      {n.message}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{timeAgo(n.created_at)}</p>
-                  </div>
-                  {!n.read && (
-                    <span className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-blue-500" />
-                  )}
-                </DropdownItem>
+          <ul className="flex flex-col overflow-y-auto flex-1">
+            {notifications.length === 0 ? (
+              <li className="flex flex-col items-center justify-center py-10 text-gray-400 dark:text-gray-500 text-sm gap-2">
+                <BellIcon className="w-8 h-8 opacity-30" />
+                <span>No notifications yet</span>
               </li>
-            ))
-          )}
-        </ul>
-      </Dropdown>
+            ) : (
+              notifications.map(n => (
+                <li key={n.id}>
+                  <DropdownItem
+                    onItemClick={() => setIsOpen(false)}
+                    baseClassName=""
+                    className={`flex gap-3 border-b border-gray-100 dark:border-gray-800 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${!n.read ? "bg-blue-50 dark:bg-blue-900/20" : ""}`}
+                  >
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-base">
+                      {TYPE_ICON[n.type] ?? "🔔"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm text-gray-800 dark:text-white/90 leading-snug break-words ${!n.read ? "font-semibold" : ""}`}>
+                        {n.message}
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{timeAgo(n.created_at)}</p>
+                    </div>
+                    {!n.read && (
+                      <span className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-blue-500" />
+                    )}
+                  </DropdownItem>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
